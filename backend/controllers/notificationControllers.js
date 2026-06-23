@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const Notification = require("../models/notificationModel");
+const Notification = require("../Models/notificationModel");
 
 const getNotifications = asyncHandler(async (req, res) => {
   try {
