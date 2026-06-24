@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { ChatState } from "../Context/ChatProvider";
 import {
   Box,
@@ -38,6 +38,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
   const [istyping, setIsTyping] = useState(false);
   var timer;
   const fileInputRef = useRef(null);
+  const notificationAudioRef = useRef(null);
 
   const defaultOptions = {
     loop: true,
@@ -52,6 +53,19 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
 
   const { user, selectedChat, setSelectedChat, notification, setNotification } =
     ChatState();
+
+  const playNotificationSound = useCallback(() => {
+    const audio = notificationAudioRef.current;
+    if (!audio) return;
+
+    audio.currentTime = 0;
+    audio.play().catch((err) => {
+      console.log(
+        "Browser ne automatic sound block kiya (Interaction Needed):",
+        err.message,
+      );
+    });
+  }, []);
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -99,6 +113,24 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
   };
 
   useEffect(() => {
+    notificationAudioRef.current = new Audio(notificationSound);
+    notificationAudioRef.current.preload = "auto";
+
+    const unlockAudio = () => {
+      if (!notificationAudioRef.current) return;
+
+      notificationAudioRef.current
+        .play()
+        .then(() => {
+          notificationAudioRef.current.pause();
+          notificationAudioRef.current.currentTime = 0;
+        })
+        .catch(() => {});
+    };
+
+    window.addEventListener("pointerdown", unlockAudio, { once: true });
+    window.addEventListener("keydown", unlockAudio, { once: true });
+
     socket = io(ENDPOINT);
     socket.emit("setup", user);
     socket.on("connected", () => setsocketConnected(true));
@@ -106,6 +138,8 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     socket.on("stop typing", () => setIsTyping(false));
 
     return () => {
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
       socket.disconnect();
     };
   }, []);
@@ -141,18 +175,12 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
 
   useEffect(() => {
     socket.on("message received", (newMessageReceived) => {
+      playNotificationSound();
+
       if (
         !selectedChatCompare ||
         selectedChatCompare._id !== newMessageReceived.chat._id
       ) {
-        const audio = new Audio(notificationSound);
-        audio.play().catch((err) => {
-          console.log(
-            "Browser ne automatic sound block kiya (Interaction Needed):",
-            err.message,
-          );
-        });
-
         setNotification((prevNotifications) => {
           const isAlreadyNotified = prevNotifications.some(
             (n) => n._id === newMessageReceived._id,
@@ -173,7 +201,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     return () => {
       socket.off("message received");
     };
-  }, [messages]);
+  }, [messages, playNotificationSound]);
 
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
