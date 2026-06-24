@@ -47,10 +47,33 @@ const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, console.log(`server run on ${PORT} port`));
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.CLIENT_URL,
+  process.env.RENDER_EXTERNAL_URL,
+].filter(Boolean);
+
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "http://localhost:3000",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      try {
+        const hostname = new URL(origin).hostname;
+        if (
+          allowedOrigins.includes(origin) ||
+          hostname === "localhost" ||
+          hostname.endsWith(".onrender.com")
+        ) {
+          return callback(null, true);
+        }
+      } catch (error) {
+        return callback(error);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
   },
 });
 
@@ -81,9 +104,8 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.off("setup", () => {
+  socket.on("disconnect", () => {
     console.log("USER DISCONNECTED");
-    socket.leave(userData._id);
   });
 });
 

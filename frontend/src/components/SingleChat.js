@@ -21,7 +21,11 @@ import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
 import notificationSound from "../sound/notification-sound.mp3";
 
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT =
+  process.env.REACT_APP_SOCKET_URL ||
+  (process.env.NODE_ENV === "production"
+    ? window.location.origin
+    : "http://localhost:5000");
 var socket, selectedChatCompare;
 
 function SIngleChat({ fetchAgain, setFetchAgain }) {
