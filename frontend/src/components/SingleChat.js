@@ -9,7 +9,11 @@ import {
   Input,
   useToast,
 } from "@chakra-ui/react";
-import { ArrowBackIcon, AttachmentIcon } from "@chakra-ui/icons";
+import {
+  ArrowBackIcon,
+  ArrowForwardIcon,
+  AttachmentIcon,
+} from "@chakra-ui/icons";
 import ProfileModal from "./miscellaneous/ProfileModal";
 import { getSender, getSenderFull } from "../config/ChatLogics";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
@@ -203,40 +207,48 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     };
   }, [messages, playNotificationSound]);
 
-  const sendMessage = async (event) => {
-    if (event.key === "Enter" && newMessage) {
-      socket.emit("stop typing", selectedChat._id);
-      try {
-        const config = {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${user.token}`,
-          },
-        };
+  const submitMessage = async () => {
+    const trimmedMessage = newMessage.trim();
+    if (!trimmedMessage) return;
 
-        const { data } = await axios.post(
-          "/api/message",
-          {
-            content: newMessage,
-            chatId: selectedChat._id,
-          },
-          config,
-        );
+    socket.emit("stop typing", selectedChat._id);
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
 
-        setNewMessage("");
+      const { data } = await axios.post(
+        "/api/message",
+        {
+          content: trimmedMessage,
+          chatId: selectedChat._id,
+        },
+        config,
+      );
 
-        socket.emit("new message", data);
-        setMessages([...messages, data]);
-      } catch (error) {
-        toast({
-          title: "Error Occured!",
-          description: "Failed to Send Messages",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-          position: "bottom",
-        });
-      }
+      setNewMessage("");
+
+      socket.emit("new message", data);
+      setMessages([...messages, data]);
+    } catch (error) {
+      toast({
+        title: "Error Occured!",
+        description: "Failed to Send Messages",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
+
+  const sendMessage = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      submitMessage();
     }
   };
 
@@ -448,6 +460,15 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                   onChange={typingHandler}
                   value={newMessage}
                   placeholder="Enter a message.."
+                />
+
+                <IconButton
+                  icon={<ArrowForwardIcon />}
+                  aria-label="Send Message"
+                  colorScheme="green"
+                  borderRadius="full"
+                  isDisabled={!newMessage.trim()}
+                  onClick={submitMessage}
                 />
               </Box>
             </FormControl>
