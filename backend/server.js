@@ -1,5 +1,11 @@
+// const dotenv = require("dotenv");
+// dotenv.config();
+
 const dotenv = require("dotenv");
-dotenv.config();
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
+
 const express = require("express");
 const { chats } = require("./data/data");
 const connectDB = require("./config/db");
