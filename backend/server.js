@@ -17,10 +17,11 @@ const path = require("path");
 
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
-connectDB();
 const app = express();
 
 app.use(express.json());
+
+connectDB();
 
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
