@@ -438,7 +438,13 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
             />
 
             {!selectedChat.isGroupChat ? (
-              <Box display="flex" alignItems="center" gap={2}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent={{ base: "flex-start", md: "space-between" }}
+                gap={2}
+                w={{ base: "auto", md: "100%" }}
+              >
                 <Box>
                   <Text fontSize={{ base: "24px", md: "28px" }} lineHeight="1">
                     {getSender(user, selectedChat.users)}
@@ -453,7 +459,13 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 <ProfileModal user={selectedUser} />
               </Box>
             ) : (
-              <Box display="flex" alignItems="center" gap={2}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent={{ base: "flex-start", md: "space-between" }}
+                gap={2}
+                w={{ base: "auto", md: "100%" }}
+              >
                 <Box>
                   <Text fontSize={{ base: "24px", md: "28px" }} lineHeight="1">
                     {selectedChat.chatName.toUpperCase()}
