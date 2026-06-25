@@ -42,6 +42,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
   const [istyping, setIsTyping] = useState(false);
   const typingTimerRef = useRef(null);
   const fileInputRef = useRef(null);
+  const messageInputRef = useRef(null);
   const notificationAudioRef = useRef(null);
 
   const defaultOptions = {
@@ -224,6 +225,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     socket.emit("stop typing", selectedChat._id);
     setTyping(false);
     setNewMessage("");
+    messageInputRef.current?.focus();
 
     const optimisticMessage = {
       _id: `temp-${Date.now()}`,
@@ -276,6 +278,8 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
         isClosable: true,
         position: "bottom",
       });
+    } finally {
+      messageInputRef.current?.focus();
     }
   };
 
@@ -491,6 +495,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 />
 
                 <Input
+                  ref={messageInputRef}
                   variant="filled"
                   bg="#E0E0E0"
                   onChange={typingHandler}
@@ -504,6 +509,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                   colorScheme="green"
                   borderRadius="full"
                   isDisabled={!newMessage.trim()}
+                  onPointerDown={(event) => event.preventDefault()}
                   onClick={submitMessage}
                 />
               </Box>
