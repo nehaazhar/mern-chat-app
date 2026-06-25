@@ -40,7 +40,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
 
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
-  var timer;
+  const typingTimerRef = useRef(null);
   const fileInputRef = useRef(null);
   const notificationAudioRef = useRef(null);
 
@@ -55,8 +55,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
 
   const toast = useToast();
 
-  const { user, selectedChat, setSelectedChat, notification, setNotification } =
-    ChatState();
+  const { user, selectedChat, setSelectedChat, setNotification } = ChatState();
 
   const playNotificationSound = useCallback(() => {
     const audio = notificationAudioRef.current;
@@ -71,7 +70,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     });
   }, []);
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     if (!selectedChat) return;
     try {
       const config = {
@@ -114,7 +113,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
         });
       }
     }
-  };
+  }, [selectedChat, toast, user.token]);
 
   useEffect(() => {
     notificationAudioRef.current = new Audio(notificationSound);
@@ -135,7 +134,10 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     window.addEventListener("pointerdown", unlockAudio, { once: true });
     window.addEventListener("keydown", unlockAudio, { once: true });
 
-    socket = io(ENDPOINT);
+    socket = io(ENDPOINT, {
+      transports: ["websocket", "polling"],
+      tryAllTransports: true,
+    });
     socket.emit("setup", user);
     socket.on("connected", () => setsocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
@@ -146,7 +148,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
       window.removeEventListener("keydown", unlockAudio);
       socket.disconnect();
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchMessages();
@@ -162,8 +164,8 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
           };
 
           await axios.delete(`/api/notification/${selectedChat._id}`, config);
-          setNotification(
-            notification.filter((n) => n.chat._id !== selectedChat._id),
+          setNotification((prevNotifications) =>
+            prevNotifications.filter((n) => n.chat._id !== selectedChat._id),
           );
         } catch (error) {
           console.log(
@@ -175,7 +177,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
 
       clearDBNotifications();
     }
-  }, [selectedChat]);
+  }, [fetchMessages, selectedChat, setNotification, user.token]);
 
   useEffect(() => {
     socket.on("message received", (newMessageReceived) => {
@@ -196,22 +198,47 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
           return prevNotifications;
         });
 
-        setFetchAgain(!fetchAgain);
+        setFetchAgain((prev) => !prev);
       } else {
-        setMessages([...messages, newMessageReceived]);
+        setMessages((prevMessages) => {
+          const alreadyExists = prevMessages.some(
+            (message) => message._id === newMessageReceived._id,
+          );
+
+          return alreadyExists
+            ? prevMessages
+            : [...prevMessages, newMessageReceived];
+        });
       }
     });
 
     return () => {
       socket.off("message received");
     };
-  }, [messages, playNotificationSound]);
+  }, [playNotificationSound, setFetchAgain, setNotification]);
 
   const submitMessage = async () => {
     const trimmedMessage = newMessage.trim();
-    if (!trimmedMessage) return;
+    if (!trimmedMessage || !selectedChat) return;
 
     socket.emit("stop typing", selectedChat._id);
+    setTyping(false);
+    setNewMessage("");
+
+    const optimisticMessage = {
+      _id: `temp-${Date.now()}`,
+      sender: {
+        _id: user._id,
+        name: user.name,
+        pic: user.pic,
+      },
+      content: trimmedMessage,
+      chat: selectedChat,
+      isOptimistic: true,
+    };
+
+    setMessages((prevMessages) => [...prevMessages, optimisticMessage]);
+
     try {
       const config = {
         headers: {
@@ -229,11 +256,18 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
         config,
       );
 
-      setNewMessage("");
-
       socket.emit("new message", data);
-      setMessages([...messages, data]);
+      setMessages((prevMessages) =>
+        prevMessages.map((message) =>
+          message._id === optimisticMessage._id ? data : message,
+        ),
+      );
     } catch (error) {
+      setMessages((prevMessages) =>
+        prevMessages.filter((message) => message._id !== optimisticMessage._id),
+      );
+      setNewMessage(trimmedMessage);
+
       toast({
         title: "Error Occured!",
         description: "Failed to Send Messages",
@@ -271,7 +305,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
       );
 
       socket.emit("new message", data);
-      setMessages([...messages, data]);
+      setMessages((prevMessages) => [...prevMessages, data]);
     } catch (error) {
       toast({
         title: "Error Occured!",
@@ -293,10 +327,12 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
       socket.emit("typing", selectedChat._id);
     }
 
-    clearTimeout(timer);
+    if (typingTimerRef.current) {
+      clearTimeout(typingTimerRef.current);
+    }
 
     var timerLength = 3000;
-    timer = setTimeout(() => {
+    typingTimerRef.current = setTimeout(() => {
       socket.emit("stop typing", selectedChat._id);
       setTyping(false);
     }, timerLength);
