@@ -77,11 +77,47 @@ const io = require("socket.io")(server, {
   },
 });
 
+const onlineUsers = new Map();
+const socketUserIds = new Map();
+
+const addOnlineUser = (userId, socketId) => {
+  if (!onlineUsers.has(userId)) {
+    onlineUsers.set(userId, new Set());
+  }
+
+  onlineUsers.get(userId).add(socketId);
+  socketUserIds.set(socketId, userId);
+};
+
+const removeOnlineUser = (socketId) => {
+  const userId = socketUserIds.get(socketId);
+  if (!userId) return;
+
+  const userSockets = onlineUsers.get(userId);
+  if (userSockets) {
+    userSockets.delete(socketId);
+
+    if (userSockets.size === 0) {
+      onlineUsers.delete(userId);
+    }
+  }
+
+  socketUserIds.delete(socketId);
+};
+
+const emitOnlineUsers = () => {
+  io.emit("online users", Array.from(onlineUsers.keys()));
+};
+
 io.on("connection", (socket) => {
   console.log("connected to socket.io");
 
   socket.on("setup", (userData) => {
+    if (!userData?._id) return;
+
     socket.join(userData._id);
+    addOnlineUser(userData._id, socket.id);
+    emitOnlineUsers();
     console.log(userData._id);
     socket.emit("connected");
   });
@@ -105,6 +141,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    removeOnlineUser(socket.id);
+    emitOnlineUsers();
     console.log("USER DISCONNECTED");
   });
 });

@@ -5,14 +5,24 @@ import { useToast, Text, Stack } from '@chakra-ui/react';
 import { Box, Button } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 import ChatLoading from "../ChatLoading";
-import { getSender } from '../../config/ChatLogics';
+import { getSender, getSenderFull } from '../../config/ChatLogics';
 import GroupChatModal from './GroupChatModal';
 
 
 function MyChats({ fetchAgain }) {
   const [loggedUser, setLoggedUser] = useState();
-  const { selectedChat, user, setSelectedChat, chats, setChats } = ChatState();
+  const { selectedChat, user, setSelectedChat, chats, setChats, onlineUsers } =
+    ChatState();
   const toast = useToast();
+
+  const getOnlineGroupUsersCount = (chat) => {
+    if (!loggedUser || !chat.isGroupChat) return 0;
+
+    return chat.users.filter(
+      (chatUser) =>
+        chatUser._id !== loggedUser._id && onlineUsers.includes(chatUser._id),
+    ).length;
+  };
 
   const fetchChats = async () => {
     try {
@@ -101,11 +111,36 @@ function MyChats({ fetchAgain }) {
                 borderRadius="lg"
                 key={chat._id}
               >
-                <Text>
-                  {!chat.isGroupChat
-                    ? getSender(loggedUser, chat.users)
-                    : chat.chatName}
-                </Text>
+                <Box display="flex" alignItems="center" gap={2}>
+                  {!chat.isGroupChat && loggedUser && (
+                    <Box
+                      w="8px"
+                      h="8px"
+                      borderRadius="full"
+                      bg={
+                        onlineUsers.includes(
+                          getSenderFull(loggedUser, chat.users)._id,
+                        )
+                          ? "green.400"
+                          : "gray.400"
+                      }
+                      flexShrink={0}
+                    />
+                  )}
+
+                  <Box>
+                    <Text>
+                      {!chat.isGroupChat
+                        ? getSender(loggedUser, chat.users)
+                        : chat.chatName}
+                    </Text>
+                    {chat.isGroupChat && (
+                      <Text fontSize="xs" opacity={0.75}>
+                        {getOnlineGroupUsersCount(chat)} online
+                      </Text>
+                    )}
+                  </Box>
+                </Box>
             
               </Box>
             ))}

@@ -56,7 +56,28 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
 
   const toast = useToast();
 
-  const { user, selectedChat, setSelectedChat, setNotification } = ChatState();
+  const {
+    user,
+    selectedChat,
+    setSelectedChat,
+    setNotification,
+    onlineUsers,
+    setOnlineUsers,
+  } = ChatState();
+
+  const selectedUser =
+    selectedChat && !selectedChat.isGroupChat
+      ? getSenderFull(user, selectedChat.users)
+      : null;
+  const isSelectedUserOnline = selectedUser
+    ? onlineUsers.includes(selectedUser._id)
+    : false;
+  const onlineGroupUsersCount = selectedChat?.isGroupChat
+    ? selectedChat.users.filter(
+        (chatUser) =>
+          chatUser._id !== user._id && onlineUsers.includes(chatUser._id),
+      ).length
+    : 0;
 
   const playNotificationSound = useCallback(() => {
     const audio = notificationAudioRef.current;
@@ -141,15 +162,17 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     });
     socket.emit("setup", user);
     socket.on("connected", () => setsocketConnected(true));
+    socket.on("online users", (users) => setOnlineUsers(users));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
 
     return () => {
       window.removeEventListener("pointerdown", unlockAudio);
       window.removeEventListener("keydown", unlockAudio);
+      socket.off("online users");
       socket.disconnect();
     };
-  }, [user]);
+  }, [setOnlineUsers, user]);
 
   useEffect(() => {
     fetchMessages();
@@ -415,20 +438,36 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
             />
 
             {!selectedChat.isGroupChat ? (
-              <>
-                {" "}
-                {getSender(user, selectedChat.users)}
-                <ProfileModal user={getSenderFull(user, selectedChat.users)} />
-              </>
+              <Box display="flex" alignItems="center" gap={2}>
+                <Box>
+                  <Text fontSize={{ base: "24px", md: "28px" }} lineHeight="1">
+                    {getSender(user, selectedChat.users)}
+                  </Text>
+                  <Text
+                    fontSize="xs"
+                    color={isSelectedUserOnline ? "green.500" : "gray.500"}
+                  >
+                    {isSelectedUserOnline ? "Online" : "Offline"}
+                  </Text>
+                </Box>
+                <ProfileModal user={selectedUser} />
+              </Box>
             ) : (
-              <>
-                {selectedChat.chatName.toUpperCase()}
+              <Box display="flex" alignItems="center" gap={2}>
+                <Box>
+                  <Text fontSize={{ base: "24px", md: "28px" }} lineHeight="1">
+                    {selectedChat.chatName.toUpperCase()}
+                  </Text>
+                  <Text fontSize="xs" color="green.500">
+                    {onlineGroupUsersCount} online
+                  </Text>
+                </Box>
                 <UpdateGroupChatModal
                   fetchAgain={fetchAgain}
                   setFetchAgain={setFetchAgain}
                   fetchMessages={fetchMessages}
                 />
-              </>
+              </Box>
             )}
           </Text>
 
