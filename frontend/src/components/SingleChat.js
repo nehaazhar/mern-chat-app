@@ -623,7 +623,9 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                   display: "flex",
                   flexDirection: "column",
                   overflowY: "auto",
-                  scrollbarWidth: "none",
+                  overflowX: "hidden",
+                  width: "100%",
+                  scrollbarWidth: "thin",
                 }}
               >
                 <ScrollableChat messages={messages} setReplyTo={setReplyTo} />

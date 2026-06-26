@@ -2,8 +2,21 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
     scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+    -ms-overflow-style: auto;
 }
 
 .reply-highlight {
@@ -22,19 +35,31 @@
 }
 
 /* Webkit scrollbar styling */
-.messages::-webkit-scrollbar {
-    width: 6px;
+.messages::-webkit-scrollbar,
+.message::-webkit-scrollbar {
+    width: 5px;
 }
 
-.messages::-webkit-scrollbar-track {
+.messages::-webkit-scrollbar-track,
+.message::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.messages::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
+.messages::-webkit-scrollbar-thumb,
+.message::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
     border-radius: 3px;
 }
 
-.messages::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.4);
+.messages::-webkit-scrollbar-thumb:hover,
+.message::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+    .message {
+        width: 100%;
+        padding: 0;
+    }
 }

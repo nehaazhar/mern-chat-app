@@ -79,7 +79,7 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
               display="flex"
               flexDirection="column"
               marginLeft={isSameSenderMargin(messages, m, i, user._id)}
-              maxWidth="70%"
+              maxWidth={{ base: "85%", md: "70%" }}
               onMouseEnter={() => setHoveredMessageId(m._id)}
               onMouseLeave={() => setHoveredMessageId(null)}
             >
@@ -90,8 +90,8 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
                 py="8px"
                 boxShadow="0 1px 2px rgba(0, 0, 0, 0.05)"
                 display="flex"
-                alignItems="flex-end"
-                gap="8px"
+                alignItems="center"
+                gap="6px"
               >
                 <Box flex={1}>
                   {m.replyTo && (
@@ -149,6 +149,7 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
                     aria-label="Reply"
                     onClick={() => setReplyTo(m)}
                     isRound
+                    flexShrink={0}
                   />
                 )}
               </Box>
