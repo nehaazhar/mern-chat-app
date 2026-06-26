@@ -21,23 +21,22 @@
     }
 }
 
-/* ========== REPLY BUTTON STYLING ========== */
+/* ========== SWIPE TO REPLY STYLING ========== */
 .message-container {
     transition: all 0.2s ease;
 }
 
-.message-container:hover {
-    transform: translateX(2px);
+.message-bubble {
+    transition: all 0.2s ease;
+    touch-action: none;
 }
 
-.message-container [data-reply-btn] {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.message-bubble:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.message-container [data-reply-btn]:hover {
-    transform: scale(1.15) !important;
-    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4) !important;
+.message-bubble:active {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ========== REPLY PREVIEW ANIMATION ========== */
@@ -57,15 +56,6 @@
     }
 }
 
-/* ========== MESSAGE HOVER EFFECT ========== */
-.message-bubble {
-    transition: all 0.2s ease;
-}
-
-.message-bubble:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
 /* ========== SMOOTH SCROLL ========== */
 ::-webkit-scrollbar {
     width: 8px;
@@ -78,8 +68,16 @@
 ::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
+    transition: background 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 0, 0, 0.4);
+}
+
+/* ========== MOBILE SWIPE ========== */
+@media (max-width: 768px) {
+    .message-bubble {
+        margin-right: 10px;
+    }
 }

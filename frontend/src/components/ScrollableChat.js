@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ScrollableFeed from "react-scrollable-feed";
 import {
   isLastMessage,
@@ -19,6 +19,7 @@ import { ArrowLeftIcon } from "@chakra-ui/icons";
 
 const ScrollableChat = ({ messages, setReplyTo }) => {
   const { user } = ChatState();
+  const [swipeState, setSwipeState] = useState({});
 
   // ✅ Common Image Helper
   const isImage = (url) => {
@@ -46,6 +47,94 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
     setTimeout(() => {
       element.classList.remove("reply-highlight");
     }, 1500);
+  };
+
+  // ✅ Swipe Handlers
+  const handleMouseDown = (messageId, e) => {
+    setSwipeState({
+      messageId,
+      startX: e.clientX,
+      startY: e.clientY,
+      isDragging: true,
+    });
+  };
+
+  const handleMouseMove = (messageId, e) => {
+    if (swipeState.messageId !== messageId || !swipeState.isDragging) return;
+
+    const diff = swipeState.startX - e.clientX;
+    const element = document.getElementById(`swipe-indicator-${messageId}`);
+
+    if (element) {
+      const opacity = Math.min(Math.abs(diff) / 80, 1);
+      element.style.opacity = opacity;
+      element.style.transform = `translateX(${Math.max(diff, 0)}px)`;
+    }
+  };
+
+  const handleMouseUp = (messageId, message, e) => {
+    if (swipeState.messageId !== messageId) {
+      setSwipeState({});
+      return;
+    }
+
+    const diff = swipeState.startX - e.clientX;
+
+    if (Math.abs(diff) > 50) {
+      setReplyTo(message);
+    }
+
+    const element = document.getElementById(`swipe-indicator-${messageId}`);
+    if (element) {
+      element.style.opacity = 0;
+      element.style.transform = "translateX(0)";
+    }
+
+    setSwipeState({});
+  };
+
+  // ✅ Touch Handlers for Mobile
+  const handleTouchStart = (messageId, e) => {
+    setSwipeState({
+      messageId,
+      startX: e.touches[0].clientX,
+      startY: e.touches[0].clientY,
+      isDragging: true,
+    });
+  };
+
+  const handleTouchMove = (messageId, e) => {
+    if (swipeState.messageId !== messageId || !swipeState.isDragging) return;
+
+    const diff = swipeState.startX - e.touches[0].clientX;
+    const element = document.getElementById(`swipe-indicator-${messageId}`);
+
+    if (element) {
+      const opacity = Math.min(Math.abs(diff) / 80, 1);
+      element.style.opacity = opacity;
+      element.style.transform = `translateX(${Math.max(diff, 0)}px)`;
+    }
+  };
+
+  const handleTouchEnd = (messageId, message, e) => {
+    if (swipeState.messageId !== messageId) {
+      setSwipeState({});
+      return;
+    }
+
+    const diff = swipeState.startX - e.changedTouches[0].clientX;
+
+    if (Math.abs(diff) > 50) {
+      setReplyTo(message);
+    }
+
+    const element = document.getElementById(`swipe-indicator-${messageId}`);
+    if (element) {
+      element.style.opacity = 0;
+      element.style.transform = "translateX(0)";
+    }
+
+    setSwipeState({});
   };
 
   return (
@@ -77,25 +166,70 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
             )}
 
             <Box
+              position="relative"
               marginLeft={isSameSenderMargin(messages, m, i, user._id)}
               marginTop={isSameUser(messages, m, i, user._id) ? 3 : 10}
               maxWidth="75%"
-              display="flex"
-              flexDirection="column"
-              bg={m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"}
-              borderRadius="20px"
-              p="6px 14px"
-              position="relative"
-              role="group"
-              className="message-bubble"
-              boxShadow="0 1px 2px rgba(0, 0, 0, 0.05)"
-              _hover={{
-                "& [data-reply-btn]": {
-                  opacity: 1,
-                  visibility: "visible",
-                },
-              }}
             >
+              {/* ✨ Swipe Indicator */}
+              <Box
+                id={`swipe-indicator-${m._id}`}
+                position="absolute"
+                left={m.sender._id === user._id ? "auto" : "-50px"}
+                right={m.sender._id === user._id ? "-50px" : "auto"}
+                top="50%"
+                transform="translateY(-50%)"
+                opacity={0}
+                transition="opacity 0.2s ease"
+                pointerEvents="none"
+              >
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  w="40px"
+                  h="40px"
+                  bg="blue.400"
+                  borderRadius="full"
+                  boxShadow="0 2px 8px rgba(66, 153, 225, 0.3)"
+                >
+                  <ArrowLeftIcon
+                    style={{
+                      transform: "scaleX(-1)",
+                      fontSize: "18px",
+                      color: "white",
+                    }}
+                  />
+                </Box>
+              </Box>
+
+              <Box
+                display="flex"
+                flexDirection="column"
+                bg={m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"}
+                borderRadius="20px"
+                p="6px 14px"
+                className="message-bubble"
+                boxShadow="0 1px 2px rgba(0, 0, 0, 0.05)"
+                cursor="grab"
+                userSelect="none"
+                onMouseDown={(e) => handleMouseDown(m._id, e)}
+                onMouseMove={(e) => handleMouseMove(m._id, e)}
+                onMouseUp={(e) => handleMouseUp(m._id, m, e)}
+                onMouseLeave={(e) => {
+                  if (swipeState.isDragging) {
+                    handleMouseUp(m._id, m, e);
+                  }
+                }}
+                onTouchStart={(e) => handleTouchStart(m._id, e)}
+                onTouchMove={(e) => handleTouchMove(m._id, e)}
+                onTouchEnd={(e) => handleTouchEnd(m._id, m, e)}
+                sx={{
+                  "&:active": {
+                    cursor: "grabbing",
+                  },
+                }}
+              >
               {/* ====================== */}
               {/* Reply Preview */}
               {/* ====================== */}
@@ -172,40 +306,12 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
                   fallbackSrc="https://via.placeholder.com/150?text=Loading+Image..."
                   cursor="pointer"
                   onClick={() => window.open(m.content, "_blank")}
+                  pointerEvents="none"
                 />
               ) : (
-                <Text wordBreak="break-word">{m.content}</Text>
+                <Text wordBreak="break-word" pointerEvents="none">{m.content}</Text>
               )}
-
-              {/* ====================== */}
-              {/* Reply Button */}
-              {/* ====================== */}
-
-              <IconButton
-                data-reply-btn
-                aria-label="Reply to message"
-                icon={<ArrowLeftIcon style={{ transform: "scaleX(-1)", fontSize: "16px" }} />}
-                size="md"
-                variant="solid"
-                bg="blue.400"
-                color="white"
-                position="absolute"
-                left={m.sender._id === user._id ? "-45px" : "auto"}
-                right={m.sender._id === user._id ? "auto" : "-45px"}
-                top="35%"
-                borderRadius="full"
-                opacity={0}
-                visibility="hidden"
-                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                cursor="pointer"
-                _hover={{
-                  bg: "blue.500",
-                  transform: "scale(1.15)",
-                  boxShadow: "0 4px 12px rgba(66, 153, 225, 0.4)",
-                }}
-                onClick={() => setReplyTo(m)}
-                title="Click to reply"
-              />
+            </Box>
             </Box>
           </div>
         ))}
