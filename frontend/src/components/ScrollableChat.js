@@ -87,9 +87,12 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
               p="6px 14px"
               position="relative"
               role="group"
+              className="message-bubble"
+              boxShadow="0 1px 2px rgba(0, 0, 0, 0.05)"
               _hover={{
                 "& [data-reply-btn]": {
                   opacity: 1,
+                  visibility: "visible",
                 },
               }}
             >
@@ -100,25 +103,38 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
               {m.replyTo && (
                 <Box
                   bg={m.sender._id === user._id ? "#A3BFFA" : "#A7F3D0"}
-                  p="5px 10px"
+                  p="8px 12px"
                   borderRadius="8px"
-                  mb="5px"
+                  mb="8px"
                   borderLeft="4px solid"
                   borderColor={
                     m.sender._id === user._id ? "blue.500" : "green.500"
                   }
                   fontSize="xs"
                   cursor="pointer"
-                  transition="0.2s"
+                  transition="all 0.2s"
+                  position="relative"
+                  _before={{
+                    content: '""',
+                    position: "absolute",
+                    left: "-2px",
+                    top: 0,
+                    bottom: 0,
+                    width: "4px",
+                    bg: m.sender._id === user._id ? "blue.500" : "green.500",
+                    borderRadius: "0 4px 4px 0",
+                  }}
                   _hover={{
                     opacity: 0.85,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                    transform: "translateX(2px)",
                   }}
                   onClick={() => scrollToMessage(m.replyTo._id)}
                 >
-                  <Text fontWeight="bold" noOfLines={1}>
+                  <Text fontWeight="bold" noOfLines={1} mb="4px">
                     {m.replyTo.sender?._id === user._id
-                      ? "You"
-                      : m.replyTo.sender?.name}
+                      ? "👤 You"
+                      : `👤 ${m.replyTo.sender?.name}`}
                   </Text>
 
                   {isImage(m.replyTo.content) ? (
@@ -128,11 +144,14 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
                         boxSize="38px"
                         borderRadius="md"
                         objectFit="cover"
+                        boxShadow="0 1px 3px rgba(0,0,0,0.1)"
                       />
-                      <Text color="gray.700">Photo</Text>
+                      <Text color="gray.700" fontWeight="500">
+                        🖼 Photo
+                      </Text>
                     </Box>
                   ) : (
-                    <Text noOfLines={1} color="gray.700">
+                    <Text noOfLines={1} color="gray.700" fontWeight="500">
                       {m.replyTo.content}
                     </Text>
                   )}
@@ -164,20 +183,28 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
 
               <IconButton
                 data-reply-btn
-                aria-label="Reply"
-                icon={<ArrowLeftIcon style={{ transform: "scaleX(-1)" }} />}
-                size="xs"
-                variant="ghost"
-                colorScheme="blue"
+                aria-label="Reply to message"
+                icon={<ArrowLeftIcon style={{ transform: "scaleX(-1)", fontSize: "16px" }} />}
+                size="md"
+                variant="solid"
+                bg="blue.400"
+                color="white"
                 position="absolute"
-                left={m.sender._id === user._id ? "-35px" : "auto"}
-                right={m.sender._id === user._id ? "auto" : "-35px"}
-                top="30%"
+                left={m.sender._id === user._id ? "-45px" : "auto"}
+                right={m.sender._id === user._id ? "auto" : "-45px"}
+                top="35%"
                 borderRadius="full"
-                opacity={0.5}
-                transition="opacity 0.2s"
+                opacity={0}
+                visibility="hidden"
+                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
                 cursor="pointer"
+                _hover={{
+                  bg: "blue.500",
+                  transform: "scale(1.15)",
+                  boxShadow: "0 4px 12px rgba(66, 153, 225, 0.4)",
+                }}
                 onClick={() => setReplyTo(m)}
+                title="Click to reply"
               />
             </Box>
           </div>

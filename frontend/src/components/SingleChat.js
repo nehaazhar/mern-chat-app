@@ -648,20 +648,25 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                   display="flex"
                   justifyContent="space-between"
                   alignItems="center"
-                  bg="#F0F0F0"
-                  p="8px 12px"
+                  bg="linear-gradient(135deg, #F0F9FF 0%, #E6F7FF 100%)"
+                  p="10px 14px"
                   mx="48px"
                   borderTopRadius="md"
                   borderLeft="4px solid"
-                  borderColor="green.500"
+                  borderColor="blue.400"
                   mb="-1px"
-                  boxShadow="sm"
+                  boxShadow="0 2px 8px rgba(66, 153, 225, 0.15)"
+                  className="reply-input-preview"
+                  transition="all 0.3s ease"
+                  _hover={{
+                    boxShadow: "0 4px 12px rgba(66, 153, 225, 0.25)",
+                  }}
                 >
                   <Box flex={1} overflow="hidden">
-                    <Text fontWeight="bold" fontSize="xs" color="green.600">
-                      Replying to{" "}
+                    <Text fontWeight="600" fontSize="xs" color="blue.600" mb={1}>
+                      ↩ Replying to{" "}
                       {replyTo.sender._id === user._id
-                        ? "You"
+                        ? "Yourself"
                         : replyTo.sender.name}
                     </Text>
                     <Box>
@@ -672,11 +677,14 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                             boxSize="40px"
                             borderRadius="md"
                             objectFit="cover"
+                            boxShadow="0 2px 4px rgba(0,0,0,0.1)"
                           />
-                          <Text fontSize="xs">Photo</Text>
+                          <Text fontSize="xs" color="gray.700" fontWeight="500">
+                            🖼 Photo
+                          </Text>
                         </Box>
                       ) : (
-                        <Text fontSize="xs" color="gray.600" noOfLines={1}>
+                        <Text fontSize="xs" color="gray.700" noOfLines={1} fontWeight="500">
                           {replyTo.content}
                         </Text>
                       )}
@@ -687,6 +695,13 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                     icon={<CloseIcon />}
                     aria-label="Cancel Reply"
                     variant="ghost"
+                    colorScheme="red"
+                    ml={2}
+                    transition="all 0.2s"
+                    _hover={{
+                      bg: "red.100",
+                      transform: "rotate(90deg)",
+                    }}
                     onClick={() => setReplyTo(null)}
                   />
                 </Box>
