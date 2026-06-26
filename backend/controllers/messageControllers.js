@@ -36,6 +36,7 @@ const sendMessage = asyncHandler(async (req, resp) => {
 
     message = await message.populate({
       path: "replyTo",
+      select: "_id content sender",
       populate: {
         path: "sender",
         select: "name pic",

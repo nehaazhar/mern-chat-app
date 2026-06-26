@@ -87,6 +87,11 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
               p="6px 14px"
               position="relative"
               role="group"
+              _hover={{
+                "& [data-reply-btn]": {
+                  opacity: 1,
+                },
+              }}
             >
               {/* ====================== */}
               {/* Reply Preview */}
@@ -158,18 +163,20 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
               {/* ====================== */}
 
               <IconButton
+                data-reply-btn
                 aria-label="Reply"
                 icon={<ArrowLeftIcon style={{ transform: "scaleX(-1)" }} />}
                 size="xs"
                 variant="ghost"
-                colorScheme="blackAlpha"
+                colorScheme="blue"
                 position="absolute"
                 left={m.sender._id === user._id ? "-35px" : "auto"}
                 right={m.sender._id === user._id ? "auto" : "-35px"}
                 top="30%"
                 borderRadius="full"
-                opacity={0}
-                _groupHover={{ opacity: 1 }}
+                opacity={0.5}
+                transition="opacity 0.2s"
+                cursor="pointer"
                 onClick={() => setReplyTo(m)}
               />
             </Box>
