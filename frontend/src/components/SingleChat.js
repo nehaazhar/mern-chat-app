@@ -7,12 +7,14 @@ import {
   Spinner,
   FormControl,
   Input,
+  Image,
   useToast,
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
   ArrowForwardIcon,
   AttachmentIcon,
+  CloseIcon,
 } from "@chakra-ui/icons";
 import ProfileModal from "./miscellaneous/ProfileModal";
 import { getSender, getSenderFull } from "../config/ChatLogics";
@@ -37,6 +39,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setsocketConnected] = useState(false);
+  const [replyTo, setReplyTo] = useState(null);
 
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
@@ -91,6 +94,15 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
       );
     });
   }, []);
+
+  const isImage = (url) => {
+    return (
+      typeof url === "string" &&
+      (url.startsWith("http://") || url.startsWith("https://")) &&
+      (url.includes("/image/upload/") ||
+        /\.(jpg|jpeg|png|gif|webp)$/i.test(url))
+    );
+  };
 
   const fetchMessages = useCallback(async () => {
     if (!selectedChat) return;
@@ -241,6 +253,71 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     };
   }, [playNotificationSound, setFetchAgain, setNotification]);
 
+  // const submitMessage = async () => {
+  //   const trimmedMessage = newMessage.trim();
+  //   if (!trimmedMessage || !selectedChat) return;
+
+  //   socket.emit("stop typing", selectedChat._id);
+  //   setTyping(false);
+  //   setNewMessage("");
+  //   messageInputRef.current?.focus();
+
+  //   const optimisticMessage = {
+  //     _id: `temp-${Date.now()}`,
+  //     sender: {
+  //       _id: user._id,
+  //       name: user.name,
+  //       pic: user.pic,
+  //     },
+  //     content: trimmedMessage,
+  //     chat: selectedChat,
+  //     isOptimistic: true,
+  //   };
+
+  //   setMessages((prevMessages) => [...prevMessages, optimisticMessage]);
+
+  //   try {
+  //     const config = {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${user.token}`,
+  //       },
+  //     };
+
+  //     const { data } = await axios.post(
+  //       "/api/message",
+  //       {
+  //         content: trimmedMessage,
+  //         chatId: selectedChat._id,
+  //       },
+  //       config,
+  //     );
+
+  //     socket.emit("new message", data);
+  //     setMessages((prevMessages) =>
+  //       prevMessages.map((message) =>
+  //         message._id === optimisticMessage._id ? data : message,
+  //       ),
+  //     );
+  //   } catch (error) {
+  //     setMessages((prevMessages) =>
+  //       prevMessages.filter((message) => message._id !== optimisticMessage._id),
+  //     );
+  //     setNewMessage(trimmedMessage);
+
+  //     toast({
+  //       title: "Error Occured!",
+  //       description: "Failed to Send Messages",
+  //       status: "error",
+  //       duration: 5000,
+  //       isClosable: true,
+  //       position: "bottom",
+  //     });
+  //   } finally {
+  //     messageInputRef.current?.focus();
+  //   }
+  // };
+
   const submitMessage = async () => {
     const trimmedMessage = newMessage.trim();
     if (!trimmedMessage || !selectedChat) return;
@@ -248,17 +325,19 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     socket.emit("stop typing", selectedChat._id);
     setTyping(false);
     setNewMessage("");
-    messageInputRef.current?.focus();
 
+    const currentReplyTo = replyTo;
+    setReplyTo(null); // Input ke upar se preview box turant hatane ke liye
+
+    // 2. Fir optimisticMessage me humne use poora ka poora pass kar diya
     const optimisticMessage = {
       _id: `temp-${Date.now()}`,
-      sender: {
-        _id: user._id,
-        name: user.name,
-        pic: user.pic,
-      },
+      sender: { _id: user._id, name: user.name, pic: user.pic },
       content: trimmedMessage,
       chat: selectedChat,
+
+      replyTo: currentReplyTo, // 🔥 YAHAN: Yeh line ensure karegi ki send karte hi screen par reply preview visible rahe!
+
       isOptimistic: true,
     };
 
@@ -277,11 +356,13 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
         {
           content: trimmedMessage,
           chatId: selectedChat._id,
+          replyTo: currentReplyTo ? currentReplyTo._id : null,
         },
         config,
       );
 
       socket.emit("new message", data);
+
       setMessages((prevMessages) =>
         prevMessages.map((message) =>
           message._id === optimisticMessage._id ? data : message,
@@ -291,7 +372,9 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
       setMessages((prevMessages) =>
         prevMessages.filter((message) => message._id !== optimisticMessage._id),
       );
+
       setNewMessage(trimmedMessage);
+      setReplyTo(currentReplyTo);
 
       toast({
         title: "Error Occured!",
@@ -313,35 +396,66 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     }
   };
 
+  // const sendImageMessage = async (imageUrl) => {
+  //   try {
+  //     const config = {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${user.token}`,
+  //       },
+  //     };
+
+  //     const { data } = await axios.post(
+  //       "/api/message",
+  //       {
+  //         content: imageUrl,
+  //         chatId: selectedChat._id,
+  //       },
+  //       config,
+  //     );
+
+  //     socket.emit("new message", data);
+  //     setMessages((prevMessages) => [...prevMessages, data]);
+  //   } catch (error) {
+  //     toast({
+  //       title: "Error Occured!",
+  //       description: "Failed to Send Image Message",
+  //       status: "error",
+  //       duration: 5000,
+  //       isClosable: true,
+  //       position: "bottom",
+  //     });
+  //   }
+  // };
+
   const sendImageMessage = async (imageUrl) => {
     try {
       const config = {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${user.token}`,
         },
       };
+
+      // ✅ Reply state ko save kar lo
+      const currentReplyTo = replyTo;
+
+      // ✅ UI se reply preview hata do
+      setReplyTo(null);
 
       const { data } = await axios.post(
         "/api/message",
         {
           content: imageUrl,
           chatId: selectedChat._id,
+          replyTo: currentReplyTo ? currentReplyTo._id : null,
         },
         config,
       );
 
       socket.emit("new message", data);
-      setMessages((prevMessages) => [...prevMessages, data]);
+      setMessages((prev) => [...prev, data]);
     } catch (error) {
-      toast({
-        title: "Error Occured!",
-        description: "Failed to Send Image Message",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
+      console.log(error);
     }
   };
 
@@ -512,7 +626,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                   scrollbarWidth: "none",
                 }}
               >
-                <ScrollableChat messages={messages} />
+                <ScrollableChat messages={messages} setReplyTo={setReplyTo} />
               </div>
             )}
 
@@ -527,6 +641,55 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 </div>
               ) : (
                 <></>
+              )}
+
+              {replyTo && (
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  bg="#F0F0F0"
+                  p="8px 12px"
+                  mx="48px"
+                  borderTopRadius="md"
+                  borderLeft="4px solid"
+                  borderColor="green.500"
+                  mb="-1px"
+                  boxShadow="sm"
+                >
+                  <Box flex={1} overflow="hidden">
+                    <Text fontWeight="bold" fontSize="xs" color="green.600">
+                      Replying to{" "}
+                      {replyTo.sender._id === user._id
+                        ? "You"
+                        : replyTo.sender.name}
+                    </Text>
+                    <Box>
+                      {isImage(replyTo.content) ? (
+                        <Box display="flex" alignItems="center" gap={2}>
+                          <Image
+                            src={replyTo.content}
+                            boxSize="40px"
+                            borderRadius="md"
+                            objectFit="cover"
+                          />
+                          <Text fontSize="xs">Photo</Text>
+                        </Box>
+                      ) : (
+                        <Text fontSize="xs" color="gray.600" noOfLines={1}>
+                          {replyTo.content}
+                        </Text>
+                      )}
+                    </Box>
+                  </Box>
+                  <IconButton
+                    size="xs"
+                    icon={<CloseIcon />}
+                    aria-label="Cancel Reply"
+                    variant="ghost"
+                    onClick={() => setReplyTo(null)}
+                  />
+                </Box>
               )}
 
               <Box display="flex" alignItems="center" gap={2}>

@@ -4,3 +4,19 @@
     overflow-y: scroll;
     scrollbar-width: none;
 }
+
+.reply-highlight {
+    animation: replyFlash 1.5s ease;
+}
+
+@keyframes replyFlash {
+    0% {
+        box-shadow: 0 0 0 4px rgba(255, 230, 0, 0.9);
+        transform: scale(1.02);
+    }
+
+    100% {
+        box-shadow: none;
+        transform: scale(1);
+    }
+}
