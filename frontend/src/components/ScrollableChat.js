@@ -148,6 +148,9 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
                     colorScheme="blue"
                     aria-label="Reply"
                     onClick={() => setReplyTo(m)}
+                    onPointerDown={(e) => e.preventDefault()}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onTouchStart={(e) => e.preventDefault()}
                     isRound
                     flexShrink={0}
                     w="24px"
