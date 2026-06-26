@@ -15,7 +15,7 @@ import {
   Text,
   IconButton,
 } from "@chakra-ui/react";
-import { ReplyIcon } from "@chakra-ui/icons";
+import { ChatIcon } from "@chakra-ui/icons";
 
 const ScrollableChat = ({ messages, setReplyTo }) => {
   const { user } = ChatState();
@@ -142,7 +142,7 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
 
                 {hoveredMessageId === m._id && (
                   <IconButton
-                    icon={<ReplyIcon />}
+                    icon={<ChatIcon />}
                     size="sm"
                     variant="ghost"
                     colorScheme="blue"
