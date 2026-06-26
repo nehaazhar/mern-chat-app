@@ -143,13 +143,18 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
                 {hoveredMessageId === m._id && (
                   <IconButton
                     icon={<ChatIcon />}
-                    size="sm"
+                    size="xs"
                     variant="ghost"
                     colorScheme="blue"
                     aria-label="Reply"
                     onClick={() => setReplyTo(m)}
                     isRound
                     flexShrink={0}
+                    w="24px"
+                    h="24px"
+                    minW="24px"
+                    minH="24px"
+                    p="0"
                   />
                 )}
               </Box>
