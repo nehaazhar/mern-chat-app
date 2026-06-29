@@ -1,5 +1,4 @@
-import React from "react";
-// 1. Saare missing components yahan add kar diye hain
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -13,14 +12,33 @@ import {
   Button,
   Image,
   Text,
+  Box,
+  Input,
 } from "@chakra-ui/react";
 import { ViewIcon } from "@chakra-ui/icons";
 
 const ProfileModal = ({ user, children }) => {
-  const { isOpen, onOpen, onClose, editProfile } = useDisclosure();
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [name, setName] = useState(user?.name);
-  const [email, setEmail] = useState(user?.email);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileName, setProfileName] = useState(user?.name || "");
+  const [profileEmail, setProfileEmail] = useState(user?.email || "");
+
+  useEffect(() => {
+    setProfileName(user?.name || "");
+    setProfileEmail(user?.email || "");
+    setIsEditing(false);
+  }, [user?.name, user?.email]);
+
+  const handleClose = () => {
+    setProfileName(user?.name || "");
+    setProfileEmail(user?.email || "");
+    setIsEditing(false);
+    onClose();
+  };
+
+  const handleSave = () => {
+    setIsEditing(false);
+  };
 
   return (
     <>
@@ -34,7 +52,7 @@ const ProfileModal = ({ user, children }) => {
         />
       )}
 
-      <Modal size="lg" isOpen={isOpen} onClose={onClose} isCentered>
+      <Modal size="lg" isOpen={isOpen} onClose={handleClose} isCentered>
         <ModalOverlay />
         <ModalContent h="410px">
           {/* User ka naam header mein */}
@@ -44,7 +62,7 @@ const ProfileModal = ({ user, children }) => {
             display="flex"
             justifyContent="center"
           >
-            {user?.name}
+            {profileName || user?.name}
           </ModalHeader>
 
           <ModalCloseButton />
@@ -59,44 +77,38 @@ const ProfileModal = ({ user, children }) => {
               <Box w="100%">
                 <Input
                   placeholder="Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  mb={3}
                 />
-
                 <Input
                   placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  mt={3}
+                  value={profileEmail}
+                  onChange={(e) => setProfileEmail(e.target.value)}
                 />
-
-                <Button
-                  mt={4}
-                  colorScheme="green"
-                  onClick={() => {
-                    console.log("Saved:", { name, email });
-                    setIsEditing(false);
-                  }}
-                >
-                  Save
-                </Button>
+                <Box mt={4} display="flex" gap={3}>
+                  <Button colorScheme="green" onClick={handleSave}>
+                    Save
+                  </Button>
+                  <Button variant="outline" onClick={handleClose}>
+                    Cancel
+                  </Button>
+                </Box>
               </Box>
             ) : (
               <>
-                {/* User ki Image */}
                 <Image
                   borderRadius="full"
                   h="140px"
                   w="154px"
                   src={user?.pic}
-                  alt={user?.name}
+                  alt={profileName || user?.name}
                 />
-                {/* User ka Email */}
                 <Text
                   fontSize={{ base: "28px", md: "30px" }}
                   fontFamily="Work sans"
                 >
-                  Email: {user?.email}
+                  Email: {profileEmail || user?.email}
                 </Text>
               </>
             )}
@@ -112,8 +124,7 @@ const ProfileModal = ({ user, children }) => {
                 Edit Profile
               </Button>
             )}
-
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
+            <Button colorScheme="blue" mr={3} onClick={handleClose}>
               Close
             </Button>
           </ModalFooter>
