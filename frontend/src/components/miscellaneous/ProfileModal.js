@@ -36,8 +36,36 @@ const ProfileModal = ({ user, children }) => {
     onClose();
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+      const token = userInfo.token;
+
+      const response = await fetch("http://localhost:5000/api/user/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: profileName,
+          email: profileEmail,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        userInfo.name = data.name;
+        userInfo.email = data.email;
+        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+        setIsEditing(false);
+      } else {
+        console.log(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
