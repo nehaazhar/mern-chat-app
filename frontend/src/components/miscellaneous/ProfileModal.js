@@ -40,8 +40,7 @@ const ProfileModal = ({ user, children }) => {
     try {
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const token = userInfo.token;
-
-      const response = await fetch("http://localhost:5000/api/user/profile", {
+      const response = await fetch("/api/user/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

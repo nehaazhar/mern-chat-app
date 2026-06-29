@@ -4,7 +4,7 @@ https://api.cloudinary.com/v1_1/doazgck2h/image/upload
 
 
 
-2   edit user profile & ui inhancement
+
 3.  dark mode 
 7.  gif add krna / camera photo add krna 
 ------------
@@ -13,15 +13,9 @@ reply a message
 
 
 -----------
+2   edit user profile & ui inhancement
 5   user online hai ki nhi 
 4.  socket thoda fast ho jaye , abhi message send krne ke kuch milisecond baad send hota hai 
 1.  mobile view me jab ye app open krte hai to keybord still active rhe
 
 
-24/380
-2005-2004
-27 school
-
-===============
-before - 1992
-ramzani
