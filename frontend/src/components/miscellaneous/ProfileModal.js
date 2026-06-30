@@ -24,10 +24,14 @@ const ProfileModal = ({ user, children }) => {
   const [profileEmail, setProfileEmail] = useState(user?.email || "");
 
   useEffect(() => {
-    setProfileName(user?.name || "");
-    setProfileEmail(user?.email || "");
+    if (isOpen) {
+      // Modal open hone par localStorage se latest data fetch kro
+      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+      setProfileName(userInfo.name || user?.name || "");
+      setProfileEmail(userInfo.email || user?.email || "");
+    }
     setIsEditing(false);
-  }, [user?.name, user?.email]);
+  }, [isOpen, user?.name, user?.email]);
 
   const handleClose = () => {
     setProfileName(user?.name || "");
