@@ -27,7 +27,7 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
       try {
         const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
         const token = userInfo.token;
-        
+
         await fetch(`/api/message/${messageId}/read`, {
           method: "PUT",
           headers: {
@@ -52,7 +52,7 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
                   markAsRead(msg._id);
                 }
               },
-              { threshold: 0.5 }
+              { threshold: 0.5 },
             );
             observer.observe(element);
           }
@@ -60,10 +60,6 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
       });
     }
   }, [messages, user._id]);
-
-const ScrollableChat = ({ messages, setReplyTo }) => {
-  const { user } = ChatState();
-  const [hoveredMessageId, setHoveredMessageId] = useState(null);
 
   // ✅ Common Image Helper
   const isImage = (url) => {
@@ -146,7 +142,9 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
                       borderRadius="6px"
                       mb="6px"
                       borderLeft="3px solid"
-                      borderColor={m.sender._id === user._id ? "blue.500" : "green.500"}
+                      borderColor={
+                        m.sender._id === user._id ? "blue.500" : "green.500"
+                      }
                       fontSize="xs"
                       cursor="pointer"
                       _hover={{ opacity: 0.8 }}
@@ -209,7 +207,10 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
               {/* Read Status Indicator */}
               {m.sender._id === user._id && (
                 <Box display="flex" justifyContent="flex-end" mt="2px" px="4px">
-                  <Text fontSize="xs" color={m.readBy?.length > 0 ? "blue.500" : "gray.400"}>
+                  <Text
+                    fontSize="xs"
+                    color={m.readBy?.length > 0 ? "blue.500" : "gray.400"}
+                  >
                     {m.readBy?.length > 0 ? "✓✓" : "✓"}
                   </Text>
                 </Box>
