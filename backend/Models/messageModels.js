@@ -10,6 +10,12 @@ const messageModel = mongoose.Schema(
       ref: "Message",
       default: null,
     },
+    readBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: true,

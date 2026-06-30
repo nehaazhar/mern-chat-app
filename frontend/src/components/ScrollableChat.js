@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ScrollableFeed from "react-scrollable-feed";
 import {
   isLastMessage,
@@ -16,6 +16,50 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { ChatIcon } from "@chakra-ui/icons";
+
+const ScrollableChat = ({ messages, setReplyTo }) => {
+  const { user } = ChatState();
+  const [hoveredMessageId, setHoveredMessageId] = useState(null);
+
+  // Mark message as read when viewed
+  useEffect(() => {
+    const markAsRead = async (messageId) => {
+      try {
+        const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+        const token = userInfo.token;
+        
+        await fetch(`/api/message/${messageId}/read`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch (error) {
+        console.error("Error marking message as read:", error);
+      }
+    };
+
+    // Mark messages as read when they come into view
+    if (messages && messages.length > 0) {
+      messages.forEach((msg) => {
+        if (msg.sender._id !== user._id) {
+          const element = document.getElementById(`message-${msg._id}`);
+          if (element) {
+            const observer = new IntersectionObserver(
+              ([entry]) => {
+                if (entry.isIntersecting && !msg.readBy?.includes(user._id)) {
+                  markAsRead(msg._id);
+                }
+              },
+              { threshold: 0.5 }
+            );
+            observer.observe(element);
+          }
+        }
+      });
+    }
+  }, [messages, user._id]);
 
 const ScrollableChat = ({ messages, setReplyTo }) => {
   const { user } = ChatState();
@@ -161,6 +205,15 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
                   />
                 )}
               </Box>
+
+              {/* Read Status Indicator */}
+              {m.sender._id === user._id && (
+                <Box display="flex" justifyContent="flex-end" mt="2px" px="4px">
+                  <Text fontSize="xs" color={m.readBy?.length > 0 ? "blue.500" : "gray.400"}>
+                    {m.readBy?.length > 0 ? "✓✓" : "✓"}
+                  </Text>
+                </Box>
+              )}
             </Box>
           </div>
         ))}

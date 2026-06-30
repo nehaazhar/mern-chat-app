@@ -84,7 +84,8 @@ const allMessages = asyncHandler(async (req, res) => {
           path: "sender",
           select: "name pic email",
         },
-      });
+      })
+      .populate("readBy", "name pic email");
 
     res.json(messages);
   } catch (error) {
@@ -93,4 +94,28 @@ const allMessages = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { sendMessage, allMessages };
+const markMessageAsRead = asyncHandler(async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.user._id;
+
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+
+    // Check if user already read the message
+    if (!message.readBy.includes(userId)) {
+      message.readBy.push(userId);
+      await message.save();
+    }
+
+    res.json({ success: true, message });
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+});
+
+module.exports = { sendMessage, allMessages, markMessageAsRead };
