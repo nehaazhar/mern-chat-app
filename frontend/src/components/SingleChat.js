@@ -628,7 +628,12 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                   scrollbarWidth: "thin",
                 }}
               >
-                <ScrollableChat messages={messages} setReplyTo={setReplyTo} />
+                <ScrollableChat
+                  messages={messages}
+                  setReplyTo={setReplyTo}
+                  setMessages={setMessages}
+                  selectedChat={selectedChat}
+                />
               </div>
             )}
 
@@ -660,8 +665,16 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                   boxShadow="0 1px 3px rgba(0, 0, 0, 0.08)"
                 >
                   <Box flex={1} overflow="hidden">
-                    <Text fontWeight="600" fontSize="xs" color="blue.600" mb="2px">
-                      Replying to {replyTo.sender._id === user._id ? "Yourself" : replyTo.sender.name}
+                    <Text
+                      fontWeight="600"
+                      fontSize="xs"
+                      color="blue.600"
+                      mb="2px"
+                    >
+                      Replying to{" "}
+                      {replyTo.sender._id === user._id
+                        ? "Yourself"
+                        : replyTo.sender.name}
                     </Text>
                     <Box>
                       {isImage(replyTo.content) ? (

@@ -16,10 +16,47 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { ChatIcon } from "@chakra-ui/icons";
+import io from "socket.io-client";
 
-const ScrollableChat = ({ messages, setReplyTo }) => {
+const ENDPOINT =
+  process.env.REACT_APP_SOCKET_URL ||
+  (process.env.NODE_ENV === "production"
+    ? window.location.origin
+    : "http://localhost:5000");
+var socket;
+
+const ScrollableChat = ({
+  messages,
+  setReplyTo,
+  setMessages,
+  selectedChat,
+}) => {
   const { user } = ChatState();
   const [hoveredMessageId, setHoveredMessageId] = useState(null);
+
+  // Socket listener for real-time read status
+  useEffect(() => {
+    socket = io(ENDPOINT);
+
+    socket.on("message read", (data) => {
+      const { messageId, userId } = data;
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) => {
+          if (msg._id === messageId && !msg.readBy?.includes(userId)) {
+            return {
+              ...msg,
+              readBy: [...(msg.readBy || []), userId],
+            };
+          }
+          return msg;
+        }),
+      );
+    });
+
+    return () => {
+      socket.off("message read");
+    };
+  }, [setMessages]);
 
   // Mark message as read when viewed
   useEffect(() => {
@@ -35,20 +72,28 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
             Authorization: `Bearer ${token}`,
           },
         });
+
+        // Emit socket event for real-time update
+        if (socket) {
+          socket.emit("message read", {
+            messageId,
+            chatId: selectedChat?._id,
+            userId: user._id,
+          });
+        }
       } catch (error) {
         console.error("Error marking message as read:", error);
       }
     };
 
-    // Mark messages as read when they come into view
     if (messages && messages.length > 0) {
       messages.forEach((msg) => {
-        if (msg.sender._id !== user._id) {
+        if (msg.sender._id !== user._id && !msg.readBy?.includes(user._id)) {
           const element = document.getElementById(`message-${msg._id}`);
           if (element) {
             const observer = new IntersectionObserver(
               ([entry]) => {
-                if (entry.isIntersecting && !msg.readBy?.includes(user._id)) {
+                if (entry.isIntersecting) {
                   markAsRead(msg._id);
                 }
               },
@@ -59,7 +104,7 @@ const ScrollableChat = ({ messages, setReplyTo }) => {
         }
       });
     }
-  }, [messages, user._id]);
+  }, [messages, user._id, selectedChat?._id]);
 
   // ✅ Common Image Helper
   const isImage = (url) => {

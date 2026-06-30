@@ -140,6 +140,11 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("message read", (data) => {
+    const { messageId, chatId, userId } = data;
+    socket.in(chatId).emit("message read", { messageId, userId });
+  });
+
   socket.on("disconnect", () => {
     removeOnlineUser(socket.id);
     emitOnlineUsers();
