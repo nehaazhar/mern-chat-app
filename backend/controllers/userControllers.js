@@ -65,24 +65,30 @@ const allUsers = asyncHandler(async (req, res) => {
 });
 
 const updateUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+  try {
+    const user = await User.findById(req.user._id);
 
-  if (!user) {
-    res.status(404);
-    throw new Error("User not found");
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      pic: updatedUser.pic,
+    });
+  } catch (err) {
+    // Temporary: log full error and return stack for debugging on deployed service.
+    console.error("updateUserProfile error:", err);
+    res.status(500).json({ message: err.message, stack: err.stack || null });
   }
-
-  user.name = req.body.name || user.name;
-  user.email = req.body.email || user.email;
-
-  const updatedUser = await user.save();
-
-  res.json({
-    _id: updatedUser._id,
-    name: updatedUser.name,
-    email: updatedUser.email,
-    pic: updatedUser.pic,
-  });
 });
 
 module.exports = { registerUser, authUser, allUsers, updateUserProfile };
