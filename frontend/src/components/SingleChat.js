@@ -149,6 +149,33 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     }
   }, [selectedChat, toast, user.token]);
 
+  const handleMarkMessageAsRead = useCallback(
+    async (messageId) => {
+      try {
+        const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+        const token = userInfo.token;
+
+        await fetch(`/api/message/${messageId}/read`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // Emit socket event for real-time update to other users
+        socket.emit("message read", {
+          messageId,
+          chatId: selectedChat?._id,
+          userId: user._id,
+        });
+      } catch (error) {
+        console.error("Error marking message as read:", error);
+      }
+    },
+    [selectedChat?._id, user._id],
+  );
+
   useEffect(() => {
     notificationAudioRef.current = new Audio(notificationSound);
     notificationAudioRef.current.preload = "auto";
@@ -248,8 +275,24 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
       }
     });
 
+    socket.on("message read", (data) => {
+      const { messageId, userId } = data;
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) => {
+          if (msg._id === messageId && !msg.readBy?.includes(userId)) {
+            return {
+              ...msg,
+              readBy: [...(msg.readBy || []), userId],
+            };
+          }
+          return msg;
+        }),
+      );
+    });
+
     return () => {
       socket.off("message received");
+      socket.off("message read");
     };
   }, [playNotificationSound, setFetchAgain, setNotification]);
 
@@ -631,8 +674,8 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 <ScrollableChat
                   messages={messages}
                   setReplyTo={setReplyTo}
-                  setMessages={setMessages}
                   selectedChat={selectedChat}
+                  onMarkAsRead={handleMarkMessageAsRead}
                 />
               </div>
             )}
