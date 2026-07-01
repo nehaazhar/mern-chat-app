@@ -20,8 +20,10 @@ import {
   useToast,
   Spinner,
   Badge,
+  useColorMode,
+  IconButton,
 } from "@chakra-ui/react";
-import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import { BellIcon, ChevronDownIcon, MoonIcon, SunIcon } from "@chakra-ui/icons";
 import { ChatState } from "../../Context/ChatProvider";
 import ProfileModal from "./ProfileModal";
 import { useNavigate } from "react-router-dom";
@@ -47,6 +49,7 @@ const SideDrawer = () => {
   } = ChatState();
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { colorMode, toggleColorMode } = useColorMode();
 
   const logoutHandler = () => {
     localStorage.removeItem("userInfo");
@@ -131,11 +134,12 @@ const SideDrawer = () => {
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        bg="white"
+        bg={colorMode === "dark" ? "gray.800" : "white"}
+        color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
         w="100%"
         p="5px 10px 5px 10px"
-        borderWidth="5px
-    "
+        borderWidth="1px"
+        borderColor={colorMode === "dark" ? "whiteAlpha.200" : "gray.200"}
       >
         <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
           <Button
@@ -152,16 +156,31 @@ const SideDrawer = () => {
           </Button>
         </Tooltip>
 
-        <Text frontSize="2xl" fontFamily="Work sans">
+        <Text fontSize="2xl" fontFamily="Work sans">
           Talk-A-Tive
         </Text>
 
-        <Box position="relative" display="inline-block" mr={2}>
+        <Box
+          position="relative"
+          display="inline-flex"
+          alignItems="center"
+          mr={2}
+          gap={2}
+        >
+          <IconButton
+            aria-label="Toggle color mode"
+            icon={colorMode === "dark" ? <SunIcon /> : <MoonIcon />}
+            onClick={toggleColorMode}
+            variant="ghost"
+            size="sm"
+          />
           <Menu>
             <MenuButton
               p={1}
               bg="transparent"
-              _hover={{ bg: "gray.100" }}
+              _hover={{
+                bg: colorMode === "dark" ? "whiteAlpha.200" : "gray.100",
+              }}
               borderRadius="md"
             >
               <BellIcon fontSize="2xl" m={1} />
@@ -237,8 +256,16 @@ const SideDrawer = () => {
 
       <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
         <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader borderBottom="1px">Search User</DrawerHeader>
+        <DrawerContent
+          bg={colorMode === "dark" ? "gray.800" : "white"}
+          color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
+        >
+          <DrawerHeader
+            borderBottom="1px"
+            borderColor={colorMode === "dark" ? "whiteAlpha.200" : "gray.200"}
+          >
+            Search User
+          </DrawerHeader>
           <DrawerBody>
             <Box display="flex" pb={2}>
               <Input

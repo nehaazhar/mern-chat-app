@@ -14,6 +14,7 @@ import {
   Box,
   Text,
   IconButton,
+  useColorMode,
 } from "@chakra-ui/react";
 import { ChatIcon } from "@chakra-ui/icons";
 
@@ -24,6 +25,7 @@ const ScrollableChat = ({
   onMarkAsRead,
 }) => {
   const { user } = ChatState();
+  const { colorMode } = useColorMode();
   const [hoveredMessageId, setHoveredMessageId] = useState(null);
 
   // Mark message as read when viewed
@@ -114,7 +116,16 @@ const ScrollableChat = ({
               onMouseLeave={() => setHoveredMessageId(null)}
             >
               <Box
-                bg={m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"}
+                bg={
+                  m.sender._id === user._id
+                    ? colorMode === "dark"
+                      ? "blue.700"
+                      : "#BEE3F8"
+                    : colorMode === "dark"
+                      ? "teal.700"
+                      : "#B9F5D0"
+                }
+                color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
                 borderRadius="18px"
                 px="12px"
                 py="8px"
@@ -126,7 +137,15 @@ const ScrollableChat = ({
                 <Box flex={1}>
                   {m.replyTo && (
                     <Box
-                      bg={m.sender._id === user._id ? "#A3BFFA" : "#A7F3D0"}
+                      bg={
+                        m.sender._id === user._id
+                          ? colorMode === "dark"
+                            ? "blue.600"
+                            : "#A3BFFA"
+                          : colorMode === "dark"
+                            ? "teal.600"
+                            : "#A7F3D0"
+                      }
                       px="10px"
                       py="6px"
                       borderRadius="6px"
@@ -146,11 +165,18 @@ const ScrollableChat = ({
                           : m.replyTo.sender?.name}
                       </Text>
                       {isImage(m.replyTo.content) ? (
-                        <Text fontSize="xs" color="gray.700">
+                        <Text
+                          fontSize="xs"
+                          color={colorMode === "dark" ? "gray.200" : "gray.700"}
+                        >
                           Photo
                         </Text>
                       ) : (
-                        <Text fontSize="xs" color="gray.700" noOfLines={1}>
+                        <Text
+                          fontSize="xs"
+                          color={colorMode === "dark" ? "gray.200" : "gray.700"}
+                          noOfLines={1}
+                        >
                           {m.replyTo.content}
                         </Text>
                       )}
@@ -199,7 +225,15 @@ const ScrollableChat = ({
                 <Box display="flex" justifyContent="flex-end" mt="2px" px="4px">
                   <Text
                     fontSize="xs"
-                    color={m.readBy?.length > 0 ? "blue.500" : "gray.400"}
+                    color={
+                      m.readBy?.length > 0
+                        ? colorMode === "dark"
+                          ? "blue.300"
+                          : "blue.500"
+                        : colorMode === "dark"
+                          ? "gray.300"
+                          : "gray.400"
+                    }
                   >
                     {m.readBy?.length > 0 ? "✓✓" : "✓"}
                   </Text>

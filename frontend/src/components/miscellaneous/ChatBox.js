@@ -1,10 +1,11 @@
 import React from "react";
-import { Box } from "@chakra-ui/react";
+import { Box, useColorMode } from "@chakra-ui/react";
 import { ChatState } from "../../Context/ChatProvider";
 import SingleChat from "../SingleChat";
 
 function ChatBox({ fetchAgain, setFetchAgain }) {
   const { selectedChat } = ChatState();
+  const { colorMode } = useColorMode();
 
   return (
     <Box
@@ -12,10 +13,12 @@ function ChatBox({ fetchAgain, setFetchAgain }) {
       alignItems="center"
       flexDir="column"
       p={3}
-      bg="white"
+      bg={colorMode === "dark" ? "gray.800" : "white"}
+      color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
       w={{ base: "100%", md: "68%" }}
       borderRadius="lg"
       borderWidth="1px"
+      borderColor={colorMode === "dark" ? "whiteAlpha.200" : "gray.200"}
     >
       <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
     </Box>

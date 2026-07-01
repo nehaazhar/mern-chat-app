@@ -9,6 +9,7 @@ import {
   Input,
   Image,
   useToast,
+  useColorMode,
 } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
@@ -58,6 +59,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
   };
 
   const toast = useToast();
+  const { colorMode } = useColorMode();
 
   const {
     user,
@@ -587,6 +589,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
             display="flex"
             justifyContent={{ base: "space-between" }}
             alignItems="center"
+            color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
           >
             <IconButton
               display={{ base: "flex", md: "none" }}
@@ -645,7 +648,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
             flexDir="column"
             justifyContent="flex-end"
             p={3}
-            bg="#E8E8E8"
+            bg={colorMode === "dark" ? "gray.700" : "#E8E8E8"}
             w="100%"
             h="100%"
             borderRadius="lg"
@@ -698,7 +701,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                   display="flex"
                   justifyContent="space-between"
                   alignItems="center"
-                  bg="#F0F9FF"
+                  bg={colorMode === "dark" ? "gray.600" : "#F0F9FF"}
                   p="10px 12px"
                   mx="48px"
                   borderTopRadius="md"
@@ -761,7 +764,8 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 <Input
                   ref={messageInputRef}
                   variant="filled"
-                  bg="#E0E0E0"
+                  bg={colorMode === "dark" ? "gray.600" : "#E0E0E0"}
+                  color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
                   onChange={typingHandler}
                   value={newMessage}
                   placeholder="Enter a message.."

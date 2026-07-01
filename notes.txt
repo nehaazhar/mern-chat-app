@@ -8,11 +8,12 @@ https://api.cloudinary.com/v1_1/doazgck2h/image/upload
 3.  dark mode 
 7.  gif add krna / camera photo add krna 
 ------------
- message read or not same as whatsapp blue tick.
-reply a message 
+
 
 
 -----------
+ message read or not same as whatsapp blue tick.
+reply a message 
 2   edit user profile & ui inhancement
 5   user online hai ki nhi 
 4.  socket thoda fast ho jaye , abhi message send krne ke kuch milisecond baad send hota hai 
