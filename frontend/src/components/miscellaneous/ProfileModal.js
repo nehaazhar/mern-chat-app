@@ -83,15 +83,21 @@ const ProfileModal = ({ user, children }) => {
         />
       )}
 
-      <Modal size="lg" isOpen={isOpen} onClose={handleClose} isCentered>
+      <Modal
+        size={{ base: "sm", md: "lg" }}
+        isOpen={isOpen}
+        onClose={handleClose}
+        isCentered
+      >
         <ModalOverlay />
-        <ModalContent h="410px">
+        <ModalContent h={{ base: "auto", md: "410px" }} p={{ base: 2, md: 0 }}>
           {/* User ka naam header mein */}
           <ModalHeader
-            fontSize="40px"
+            fontSize={{ base: "24px", md: "40px" }}
             fontFamily="Work sans"
             display="flex"
             justifyContent="center"
+            p={{ base: "16px", md: "24px" }}
           >
             {profileName || user?.name}
           </ModalHeader>
@@ -103,6 +109,8 @@ const ProfileModal = ({ user, children }) => {
             flexDir="column"
             alignItems="center"
             justifyContent="space-between"
+            p={{ base: "12px", md: "24px" }}
+            gap={{ base: 3, md: 4 }}
           >
             {isEditing ? (
               <Box w="100%">
@@ -130,14 +138,16 @@ const ProfileModal = ({ user, children }) => {
               <>
                 <Image
                   borderRadius="full"
-                  h="140px"
-                  w="154px"
+                  h={{ base: "100px", md: "140px" }}
+                  w={{ base: "100px", md: "154px" }}
                   src={user?.pic}
                   alt={profileName || user?.name}
                 />
                 <Text
-                  fontSize={{ base: "28px", md: "30px" }}
+                  fontSize={{ base: "14px", md: "18px" }}
                   fontFamily="Work sans"
+                  textAlign="center"
+                  wordBreak="break-word"
                 >
                   Email: {profileEmail || user?.email}
                 </Text>
@@ -145,17 +155,29 @@ const ProfileModal = ({ user, children }) => {
             )}
           </ModalBody>
 
-          <ModalFooter>
+          <ModalFooter
+            display="flex"
+            gap={2}
+            justifyContent="center"
+            flexDir={{ base: "column", md: "row" }}
+            p={{ base: "12px", md: "24px" }}
+          >
             {!isEditing && (
               <Button
                 colorScheme="blue"
-                mr={3}
+                size={{ base: "sm", md: "md" }}
+                w={{ base: "100%", md: "auto" }}
                 onClick={() => setIsEditing(true)}
               >
                 Edit Profile
               </Button>
             )}
-            <Button colorScheme="blue" mr={3} onClick={handleClose}>
+            <Button
+              colorScheme="blue"
+              size={{ base: "sm", md: "md" }}
+              w={{ base: "100%", md: "auto" }}
+              onClick={handleClose}
+            >
               Close
             </Button>
           </ModalFooter>
