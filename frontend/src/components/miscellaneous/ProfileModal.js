@@ -15,6 +15,7 @@ import {
   Box,
   Input,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
 import { ViewIcon, EditIcon } from "@chakra-ui/icons";
 import { ChatState } from "../../Context/ChatProvider";
@@ -40,7 +41,6 @@ const ProfileModal = ({ user, children }) => {
   }, [isOpen, user?.name, user?.email, user?.pic]);
 
   const handleClose = () => {
-    // Fetch fresh data from localStorage when closing
     const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
     setProfileName(userInfo.name || user?.name || "");
     setProfileEmail(userInfo.email || user?.email || "");
@@ -67,7 +67,6 @@ const ProfileModal = ({ user, children }) => {
         return;
       }
 
-      // Check if there's a file to upload
       if (fileInputRef.current?.files?.[0]) {
         const file = fileInputRef.current.files[0];
         const reader = new FileReader();
@@ -98,7 +97,7 @@ const ProfileModal = ({ user, children }) => {
             setProfilePic(userInfo.pic);
             setProfileName(userInfo.name);
             setProfileEmail(userInfo.email);
-            setUser(userInfo); // Update context so menu avatar updates
+            setUser(userInfo);
             setIsEditing(false);
             toast({
               title: "Success",
@@ -108,7 +107,6 @@ const ProfileModal = ({ user, children }) => {
               isClosable: true,
               position: "top",
             });
-            // Close modal after 1 second so data refreshes when reopened
             setTimeout(() => {
               onClose();
             }, 1000);
@@ -125,7 +123,6 @@ const ProfileModal = ({ user, children }) => {
         };
         reader.readAsDataURL(file);
       } else {
-        // No image upload, just update name and email
         const response = await fetch("/api/user/profile", {
           method: "PUT",
           headers: {
@@ -146,7 +143,7 @@ const ProfileModal = ({ user, children }) => {
           localStorage.setItem("userInfo", JSON.stringify(userInfo));
           setProfileName(data.name);
           setProfileEmail(data.email);
-          setUser(userInfo); // Update context so menu avatar updates
+          setUser(userInfo);
           setIsEditing(false);
           toast({
             title: "Success",
@@ -156,7 +153,6 @@ const ProfileModal = ({ user, children }) => {
             isClosable: true,
             position: "top",
           });
-          // Close modal after 1 second so data refreshes when reopened
           setTimeout(() => {
             onClose();
           }, 1000);
@@ -208,34 +204,37 @@ const ProfileModal = ({ user, children }) => {
       )}
 
       <Modal
-        size={{ base: "sm", md: "xl" }}
+        size={{ base: "sm", md: "md" }} // Adjusted size to 'md' for cleaner dimensions
         isOpen={isOpen}
         onClose={handleClose}
         isCentered
       >
-        <ModalOverlay backdropFilter="blur(4px)" />
+        <ModalOverlay backdropFilter="blur(6px)" />
         <ModalContent
-          h={{ base: "auto", md: "500px" }}
-          p={{ base: 2, md: 0 }}
-          boxShadow="0 20px 60px rgba(0,0,0,0.3)"
-          borderRadius={{ base: "md", md: "xl" }}
+          p={3}
+          boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+          borderRadius="2xl"
+          overflow="hidden"
         >
           <ModalHeader
-            fontSize={{ base: "24px", md: "48px" }}
+            fontSize={{ base: "24px", md: "32px" }}
             fontFamily="Work sans"
             fontWeight="bold"
             display="flex"
             justifyContent="center"
-            p={{ base: "16px", md: "32px 24px 24px" }}
-            borderBottom={{ base: "none", md: "2px solid" }}
-            borderColor={{ base: "transparent", md: "blue.100" }}
+            pt={6}
+            pb={2}
+            color="gray.800"
           >
             {profileName || user?.name}
           </ModalHeader>
 
           <ModalCloseButton
-            size={{ base: "sm", md: "lg" }}
-            _hover={{ bg: "transparent", color: "red.400" }}
+            size="lg"
+            top={4}
+            right={4}
+            borderRadius="full"
+            _hover={{ bg: "gray.100", color: "red.500" }}
             transition="all 0.2s"
           />
 
@@ -244,31 +243,35 @@ const ProfileModal = ({ user, children }) => {
             flexDir="column"
             alignItems="center"
             justifyContent="center"
-            p={{ base: "12px", md: "0px" }}
-            gap={{ base: 3, md: 6 }}
+            px={{ base: 4, md: 8 }}
+            py={4}
           >
             {isEditing ? (
-              <Box w="100%" display="flex" flexDir="column" alignItems="center">
-                <Box position="relative" mb={6}>
+              <VStack spacing={5} w="100%">
+                <Box position="relative">
                   <Image
                     borderRadius="full"
-                    h={{ base: "100px", md: "140px" }}
-                    w={{ base: "100px", md: "140px" }}
+                    h="130px"
+                    w="130px"
                     src={profilePic}
                     alt="Profile"
                     objectFit="cover"
+                    border="4px solid"
+                    borderColor="blue.500"
+                    boxShadow="xl"
                   />
                   <IconButton
                     icon={<EditIcon />}
                     position="absolute"
-                    bottom={0}
-                    right={0}
+                    bottom={1}
+                    right={1}
                     borderRadius="full"
-                    bg="blue.500"
-                    color="white"
+                    colorScheme="blue"
                     size="sm"
                     onClick={() => fileInputRef.current?.click()}
-                    _hover={{ bg: "blue.600" }}
+                    boxShadow="md"
+                    _hover={{ transform: "scale(1.1)" }}
+                    transition="all 0.2s"
                   />
                   <Input
                     ref={fileInputRef}
@@ -278,48 +281,42 @@ const ProfileModal = ({ user, children }) => {
                     display="none"
                   />
                 </Box>
-                <Input
-                  placeholder="Name"
-                  value={profileName}
-                  onChange={(e) => setProfileName(e.target.value)}
-                  mb={4}
-                  size={{ base: "md", md: "lg" }}
-                  fontSize={{ base: "14px", md: "16px" }}
-                  p={{ base: "10px 14px", md: "12px 16px" }}
-                  w="100%"
-                  _focus={{
-                    borderColor: "blue.400",
-                    boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.1)",
-                  }}
-                />
-                <Input
-                  placeholder="Email"
-                  value={profileEmail}
-                  onChange={(e) => setProfileEmail(e.target.value)}
-                  size={{ base: "md", md: "lg" }}
-                  fontSize={{ base: "14px", md: "16px" }}
-                  p={{ base: "10px 14px", md: "12px 16px" }}
-                  w="100%"
-                  _focus={{
-                    borderColor: "blue.400",
-                    boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.1)",
-                  }}
-                />
+
+                <VStack spacing={3} w="100%">
+                  <Input
+                    placeholder="Name"
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
+                    size="lg"
+                    borderRadius="xl"
+                    focusBorderColor="blue.400"
+                    bg="gray.50"
+                  />
+                  <Input
+                    placeholder="Email"
+                    value={profileEmail}
+                    onChange={(e) => setProfileEmail(e.target.value)}
+                    size="lg"
+                    borderRadius="xl"
+                    focusBorderColor="blue.400"
+                    bg="gray.50"
+                  />
+                </VStack>
+
                 <Box
-                  mt={6}
+                  pt={2}
                   display="flex"
                   gap={3}
-                  flexDir={{ base: "column", md: "row" }}
                   w="100%"
                   justifyContent="center"
                 >
                   <Button
                     colorScheme="green"
                     onClick={handleSave}
-                    size={{ base: "md", md: "lg" }}
-                    w={{ base: "100%", md: "auto" }}
-                    px={{ base: 8, md: 12 }}
-                    _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }}
+                    size="lg"
+                    borderRadius="xl"
+                    flex={1}
+                    _hover={{ transform: "translateY(-1px)", boxShadow: "md" }}
                     transition="all 0.2s"
                   >
                     Save
@@ -327,60 +324,56 @@ const ProfileModal = ({ user, children }) => {
                   <Button
                     variant="outline"
                     onClick={handleClose}
-                    size={{ base: "md", md: "lg" }}
-                    w={{ base: "100%", md: "auto" }}
-                    px={{ base: 8, md: 12 }}
-                    _hover={{ transform: "translateY(-2px)" }}
+                    size="lg"
+                    borderRadius="xl"
+                    flex={1}
+                    _hover={{ bg: "gray.50", transform: "translateY(-1px)" }}
                     transition="all 0.2s"
                   >
                     Cancel
                   </Button>
                 </Box>
-              </Box>
+              </VStack>
             ) : (
-              <>
+              <VStack spacing={5} py={4}>
                 <Image
                   borderRadius="full"
-                  h={{ base: "100px", md: "160px" }}
-                  w={{ base: "100px", md: "160px" }}
+                  h="150px"
+                  w="150px"
                   src={profilePic}
                   alt={profileName || user?.name}
-                  boxShadow="0 8px 20px rgba(0,0,0,0.15)"
-                  _hover={{ transform: "scale(1.05)", transition: "all 0.3s" }}
-                  transition="all 0.3s"
+                  boxShadow="0 10px 25px -5px rgba(0,0,0,0.15)"
+                  border="3px solid white"
+                  outline="2px solid"
+                  outlineColor="gray.200"
+                  _hover={{ transform: "scale(1.03)" }}
+                  transition="all 0.3s ease-in-out"
                 />
                 <Text
-                  fontSize={{ base: "14px", md: "20px" }}
+                  fontSize={{ base: "15px", md: "18px" }}
                   fontFamily="Work sans"
                   textAlign="center"
                   wordBreak="break-word"
-                  color={{ base: "blue.300", md: "blue.400" }}
-                  fontWeight="600"
+                  color="gray.600"
+                  fontWeight="500"
                 >
-                  Email: {profileEmail || user?.email}
+                  {profileEmail || user?.email}
                 </Text>
-              </>
+              </VStack>
             )}
           </ModalBody>
 
-          <ModalFooter
-            display="flex"
-            gap={{ base: 2, md: 4 }}
-            justifyContent="center"
-            flexDir={{ base: "column", md: "row" }}
-            p={{ base: "12px", md: "24px" }}
-            borderTop={{ base: "none", md: "1px solid" }}
-            borderColor={{ base: "transparent", md: "blue.100" }}
-          >
+          <ModalFooter justifyContent="center" pb={6} pt={2}>
             {!isEditing && (
               <Button
                 colorScheme="blue"
-                size={{ base: "md", md: "lg" }}
+                size="lg"
+                borderRadius="xl"
                 w={{ base: "100%", md: "auto" }}
                 onClick={() => setIsEditing(true)}
-                _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }}
+                _hover={{ transform: "translateY(-1px)", boxShadow: "lg" }}
                 transition="all 0.2s"
-                px={{ base: 8, md: 12 }}
+                px={12}
               >
                 Edit Profile
               </Button>
