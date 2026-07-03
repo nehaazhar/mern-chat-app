@@ -224,10 +224,11 @@ const ProfileModal = ({ user, children }) => {
                   placeholder="Name"
                   value={profileName}
                   onChange={(e) => setProfileName(e.target.value)}
-                  mb={3}
-                  size={{ base: "sm", md: "lg" }}
+                  mb={4}
+                  size={{ base: "md", md: "lg" }}
                   fontSize={{ base: "14px", md: "16px" }}
-                  p={{ base: "8px 12px", md: "12px 16px" }}
+                  p={{ base: "10px 14px", md: "12px 16px" }}
+                  w="100%"
                   _focus={{
                     borderColor: "blue.400",
                     boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.1)",
@@ -237,35 +238,42 @@ const ProfileModal = ({ user, children }) => {
                   placeholder="Email"
                   value={profileEmail}
                   onChange={(e) => setProfileEmail(e.target.value)}
-                  size={{ base: "sm", md: "lg" }}
+                  size={{ base: "md", md: "lg" }}
                   fontSize={{ base: "14px", md: "16px" }}
-                  p={{ base: "8px 12px", md: "12px 16px" }}
+                  p={{ base: "10px 14px", md: "12px 16px" }}
+                  w="100%"
                   _focus={{
                     borderColor: "blue.400",
                     boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.1)",
                   }}
                 />
                 <Box
-                  mt={4}
+                  mt={6}
                   display="flex"
                   gap={3}
                   flexDir={{ base: "column", md: "row" }}
+                  w="100%"
+                  justifyContent="center"
                 >
                   <Button
                     colorScheme="green"
                     onClick={handleSave}
-                    size={{ base: "sm", md: "lg" }}
+                    size={{ base: "md", md: "lg" }}
                     w={{ base: "100%", md: "auto" }}
-                    px={{ base: 4, md: 8 }}
+                    px={{ base: 8, md: 12 }}
+                    _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }}
+                    transition="all 0.2s"
                   >
                     Save
                   </Button>
                   <Button
                     variant="outline"
                     onClick={handleClose}
-                    size={{ base: "sm", md: "lg" }}
+                    size={{ base: "md", md: "lg" }}
                     w={{ base: "100%", md: "auto" }}
-                    px={{ base: 4, md: 8 }}
+                    px={{ base: 8, md: 12 }}
+                    _hover={{ transform: "translateY(-2px)" }}
+                    transition="all 0.2s"
                   >
                     Cancel
                   </Button>
@@ -309,28 +317,16 @@ const ProfileModal = ({ user, children }) => {
             {!isEditing && (
               <Button
                 colorScheme="blue"
-                size={{ base: "sm", md: "lg" }}
+                size={{ base: "md", md: "lg" }}
                 w={{ base: "100%", md: "auto" }}
                 onClick={() => setIsEditing(true)}
                 _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }}
                 transition="all 0.2s"
-                px={{ base: 6, md: 8 }}
+                px={{ base: 8, md: 12 }}
               >
                 Edit Profile
               </Button>
             )}
-            <Button
-              colorScheme="blue"
-              variant={{ base: "solid", md: "outline" }}
-              size={{ base: "sm", md: "lg" }}
-              w={{ base: "100%", md: "auto" }}
-              onClick={handleClose}
-              _hover={{ transform: "translateY(-2px)" }}
-              transition="all 0.2s"
-              px={{ base: 6, md: 8 }}
-            >
-              Close
-            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
