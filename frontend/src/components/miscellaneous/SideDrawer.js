@@ -136,10 +136,12 @@ const SideDrawer = () => {
         alignItems="center"
         bg={colorMode === "dark" ? "gray.800" : "white"}
         color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
-        w={{ base: "calc(100% - 20px)", md: "100%" }}
+        w="100%"
         p="5px 10px 5px 10px"
         borderWidth="1px"
         borderColor={colorMode === "dark" ? "whiteAlpha.200" : "gray.200"}
+        overflowX="hidden"
+        boxSizing="border-box"
       >
         <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
           <Button
@@ -205,6 +207,8 @@ const SideDrawer = () => {
                     py={0.5}
                     fontSize="10px"
                     variant="solid"
+                    bg="red.500"
+                    color="white"
                   >
                     {notification.length}
                   </Badge>
