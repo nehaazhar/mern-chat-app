@@ -163,7 +163,6 @@ const SideDrawer = () => {
         </Text>
 
         <Box
-          position="relative"
           display="inline-flex"
           alignItems="center"
           mr={2}
@@ -247,7 +246,7 @@ const SideDrawer = () => {
                 src={user?.pic}
               />
             </MenuButton>
-            <MenuList>
+            <MenuList zIndex={1000}>
               <ProfileModal user={user}>
                 <MenuItem>My Profile</MenuItem>
               </ProfileModal>
