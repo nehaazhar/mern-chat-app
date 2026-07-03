@@ -215,7 +215,7 @@ const SideDrawer = () => {
                 </motion.div>
               )}
             </MenuButton>
-            <MenuList pl={2}>
+            <MenuList pl={2} zIndex={1000}>
               {!notification.length && "No New Messages"}
               {notification.map((notif) => (
                 <MenuItem
