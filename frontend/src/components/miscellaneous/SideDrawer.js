@@ -150,6 +150,7 @@ const SideDrawer = () => {
             bg="transparent"
             _active={{ bg: "transparent" }}
             borderWidth="0px"
+            flexShrink={0}
           >
             <i class="fas fa-search"></i>
             <Text display={{ base: "none", md: "flex" }} px="4">
@@ -158,7 +159,7 @@ const SideDrawer = () => {
           </Button>
         </Tooltip>
 
-        <Text fontSize="2xl" fontFamily="Work sans">
+        <Text fontSize="2xl" fontFamily="Work sans" flexShrink={0}>
           Talk-A-Tive
         </Text>
 
@@ -167,6 +168,7 @@ const SideDrawer = () => {
           alignItems="center"
           mr={2}
           gap={2}
+          flexShrink={0}
         >
           <IconButton
             aria-label="Toggle color mode"
