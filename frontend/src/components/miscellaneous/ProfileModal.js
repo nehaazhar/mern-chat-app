@@ -112,7 +112,7 @@ const ProfileModal = ({ user, children }) => {
 
           <ModalCloseButton
             size={{ base: "sm", md: "lg" }}
-            _hover={{ bg: "red.50" }}
+            _hover={{ bg: "transparent", color: "red.400" }}
             transition="all 0.2s"
           />
 
@@ -183,8 +183,8 @@ const ProfileModal = ({ user, children }) => {
                   fontFamily="Work sans"
                   textAlign="center"
                   wordBreak="break-word"
-                  color={{ base: "gray.600", md: "gray.700" }}
-                  fontWeight="500"
+                  color={{ base: "blue.300", md: "blue.400" }}
+                  fontWeight="600"
                 >
                   Email: {profileEmail || user?.email}
                 </Text>
