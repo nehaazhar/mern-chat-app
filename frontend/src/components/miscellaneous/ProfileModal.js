@@ -35,12 +35,14 @@ const ProfileModal = ({ user, children }) => {
       setProfilePic(userInfo.pic || user?.pic || "");
     }
     setIsEditing(false);
-  }, [isOpen, user?.name, user?.email]);
+  }, [isOpen, user?.name, user?.email, user?.pic]);
 
   const handleClose = () => {
-    setProfileName(user?.name || "");
-    setProfileEmail(user?.email || "");
-    setProfilePic(user?.pic || "");
+    // Fetch fresh data from localStorage when closing
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+    setProfileName(userInfo.name || user?.name || "");
+    setProfileEmail(userInfo.email || user?.email || "");
+    setProfilePic(userInfo.pic || user?.pic || "");
     setIsEditing(false);
     onClose();
   };
@@ -91,9 +93,9 @@ const ProfileModal = ({ user, children }) => {
             userInfo.email = data.email;
             if (data.pic) userInfo.pic = data.pic;
             localStorage.setItem("userInfo", JSON.stringify(userInfo));
-            setProfilePic(data.pic || userInfo.pic);
-            setProfileName(data.name);
-            setProfileEmail(data.email);
+            setProfilePic(userInfo.pic);
+            setProfileName(userInfo.name);
+            setProfileEmail(userInfo.email);
             setIsEditing(false);
             toast({
               title: "Success",
@@ -103,6 +105,10 @@ const ProfileModal = ({ user, children }) => {
               isClosable: true,
               position: "top",
             });
+            // Close modal after 1 second so data refreshes when reopened
+            setTimeout(() => {
+              onClose();
+            }, 1000);
           } else {
             toast({
               title: "Error",
@@ -146,6 +152,10 @@ const ProfileModal = ({ user, children }) => {
             isClosable: true,
             position: "top",
           });
+          // Close modal after 1 second so data refreshes when reopened
+          setTimeout(() => {
+            onClose();
+          }, 1000);
         } else {
           toast({
             title: "Error",

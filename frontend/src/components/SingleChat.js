@@ -512,7 +512,10 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                     objectFit="cover"
                   />
                   <Box>
-                    <Text fontSize={{ base: "24px", md: "28px" }} lineHeight="1">
+                    <Text
+                      fontSize={{ base: "24px", md: "28px" }}
+                      lineHeight="1"
+                    >
                       {getSender(user, selectedChat.users)}
                     </Text>
                     <Text
