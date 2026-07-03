@@ -14,6 +14,7 @@ import {
   Text,
   Box,
   Input,
+  useToast,
 } from "@chakra-ui/react";
 import { ViewIcon, EditIcon } from "@chakra-ui/icons";
 
@@ -24,6 +25,7 @@ const ProfileModal = ({ user, children }) => {
   const [profileEmail, setProfileEmail] = useState(user?.email || "");
   const [profilePic, setProfilePic] = useState(user?.pic || "");
   const fileInputRef = useRef(null);
+  const toast = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -50,7 +52,14 @@ const ProfileModal = ({ user, children }) => {
       const userId = userInfo._id;
 
       if (!userId || !token) {
-        alert("Session expired. Please login again.");
+        toast({
+          title: "Session Expired",
+          description: "Please login again.",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+        });
         return;
       }
 
@@ -86,9 +95,23 @@ const ProfileModal = ({ user, children }) => {
             setProfileName(data.name);
             setProfileEmail(data.email);
             setIsEditing(false);
-            alert("Profile updated successfully!");
+            toast({
+              title: "Success",
+              description: "Profile updated successfully!",
+              status: "success",
+              duration: 4000,
+              isClosable: true,
+              position: "top",
+            });
           } else {
-            alert("Failed to update profile: " + (data.message || "Unknown error"));
+            toast({
+              title: "Error",
+              description: data.message || "Failed to update profile",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top",
+            });
           }
         };
         reader.readAsDataURL(file);
@@ -115,14 +138,35 @@ const ProfileModal = ({ user, children }) => {
           setProfileName(data.name);
           setProfileEmail(data.email);
           setIsEditing(false);
-          alert("Profile updated successfully!");
+          toast({
+            title: "Success",
+            description: "Profile updated successfully!",
+            status: "success",
+            duration: 4000,
+            isClosable: true,
+            position: "top",
+          });
         } else {
-          alert("Failed to update profile: " + (data.message || "Unknown error"));
+          toast({
+            title: "Error",
+            description: data.message || "Failed to update profile",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "top",
+          });
         }
       }
     } catch (error) {
       console.error(error);
-      alert("Error saving profile: " + error.message);
+      toast({
+        title: "Error",
+        description: "Error saving profile: " + error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
     }
   };
 
