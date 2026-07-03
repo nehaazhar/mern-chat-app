@@ -502,16 +502,26 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 gap={2}
                 w={{ base: "auto", md: "100%" }}
               >
-                <Box>
-                  <Text fontSize={{ base: "24px", md: "28px" }} lineHeight="1">
-                    {getSender(user, selectedChat.users)}
-                  </Text>
-                  <Text
-                    fontSize="xs"
-                    color={isSelectedUserOnline ? "green.500" : "gray.500"}
-                  >
-                    {isSelectedUserOnline ? "Online" : "Offline"}
-                  </Text>
+                <Box display="flex" alignItems="center" gap={3}>
+                  <Image
+                    borderRadius="full"
+                    h={{ base: "40px", md: "50px" }}
+                    w={{ base: "40px", md: "50px" }}
+                    src={selectedUser?.pic}
+                    alt={selectedUser?.name}
+                    objectFit="cover"
+                  />
+                  <Box>
+                    <Text fontSize={{ base: "24px", md: "28px" }} lineHeight="1">
+                      {getSender(user, selectedChat.users)}
+                    </Text>
+                    <Text
+                      fontSize="xs"
+                      color={isSelectedUserOnline ? "green.500" : "gray.500"}
+                    >
+                      {isSelectedUserOnline ? "Online" : "Offline"}
+                    </Text>
+                  </Box>
                 </Box>
                 <ProfileModal user={selectedUser} />
               </Box>
@@ -654,7 +664,11 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 <IconButton
                   icon={<AttachmentIcon />}
                   aria-label="Attach File"
-                  bg="#E0E0E0"
+                  bg={colorMode === "dark" ? "gray.600" : "#E0E0E0"}
+                  color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
+                  _hover={{
+                    bg: colorMode === "dark" ? "gray.500" : "#D0D0D0",
+                  }}
                   onClick={() => fileInputRef.current.click()}
                 />
 
