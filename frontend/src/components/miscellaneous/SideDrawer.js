@@ -136,7 +136,7 @@ const SideDrawer = () => {
         alignItems="center"
         bg={colorMode === "dark" ? "gray.800" : "white"}
         color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
-        w="100%"
+        w={{ base: "calc(100% - 20px)", md: "100%" }}
         p="5px 10px 5px 10px"
         borderWidth="1px"
         borderColor={colorMode === "dark" ? "whiteAlpha.200" : "gray.200"}
