@@ -17,6 +17,7 @@ const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 connectDB();
 

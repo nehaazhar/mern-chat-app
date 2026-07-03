@@ -47,37 +47,82 @@ const ProfileModal = ({ user, children }) => {
     try {
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const token = userInfo.token;
+      const userId = userInfo._id;
 
-      const formData = new FormData();
-      formData.append("name", profileName);
-      formData.append("email", profileEmail);
-
-      if (fileInputRef.current?.files?.[0]) {
-        formData.append("pic", fileInputRef.current.files[0]);
+      if (!userId || !token) {
+        alert("Session expired. Please login again.");
+        return;
       }
 
-      const response = await fetch("/api/user/profile", {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      // Check if there's a file to upload
+      if (fileInputRef.current?.files?.[0]) {
+        const file = fileInputRef.current.files[0];
+        const reader = new FileReader();
 
-      const data = await response.json();
+        reader.onloadend = async () => {
+          const base64Pic = reader.result;
 
-      if (response.ok) {
-        userInfo.name = data.name;
-        userInfo.email = data.email;
-        if (data.pic) userInfo.pic = data.pic;
-        localStorage.setItem("userInfo", JSON.stringify(userInfo));
-        setProfilePic(data.pic || profilePic);
-        setIsEditing(false);
+          const response = await fetch("/api/user/profile", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              Authorization: `Bearer ${token}`,
+            },
+            body: new URLSearchParams({
+              name: profileName,
+              email: profileEmail,
+              pic: base64Pic,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data._id === userId) {
+            userInfo.name = data.name;
+            userInfo.email = data.email;
+            if (data.pic) userInfo.pic = data.pic;
+            localStorage.setItem("userInfo", JSON.stringify(userInfo));
+            setProfilePic(data.pic || userInfo.pic);
+            setProfileName(data.name);
+            setProfileEmail(data.email);
+            setIsEditing(false);
+            alert("Profile updated successfully!");
+          } else {
+            alert("Failed to update profile: " + (data.message || "Unknown error"));
+          }
+        };
+        reader.readAsDataURL(file);
       } else {
-        console.log(data);
+        // No image upload, just update name and email
+        const response = await fetch("/api/user/profile", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: profileName,
+            email: profileEmail,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data._id === userId) {
+          userInfo.name = data.name;
+          userInfo.email = data.email;
+          localStorage.setItem("userInfo", JSON.stringify(userInfo));
+          setProfileName(data.name);
+          setProfileEmail(data.email);
+          setIsEditing(false);
+          alert("Profile updated successfully!");
+        } else {
+          alert("Failed to update profile: " + (data.message || "Unknown error"));
+        }
       }
     } catch (error) {
       console.error(error);
+      alert("Error saving profile: " + error.message);
     }
   };
 

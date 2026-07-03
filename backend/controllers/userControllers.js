@@ -66,6 +66,11 @@ const allUsers = asyncHandler(async (req, res) => {
 
 const updateUserProfile = asyncHandler(async (req, res) => {
   try {
+    if (!req.user || !req.user._id) {
+      res.status(401);
+      throw new Error("Not authorized to update profile");
+    }
+
     const user = await User.findById(req.user._id);
 
     if (!user) {
@@ -73,8 +78,18 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       throw new Error("User not found");
     }
 
-    user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
+    // Update name and email from request body
+    if (req.body?.name) {
+      user.name = req.body.name;
+    }
+    if (req.body?.email) {
+      user.email = req.body.email;
+    }
+
+    // If pic comes as base64 string in FormData, handle it
+    if (req.body?.pic && typeof req.body.pic === "string") {
+      user.pic = req.body.pic;
+    }
 
     const updatedUser = await user.save();
 
@@ -83,10 +98,14 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       name: updatedUser.name,
       email: updatedUser.email,
       pic: updatedUser.pic,
+      token: generateToken(updatedUser._id),
     });
   } catch (err) {
     console.error("updateUserProfile error:", err);
-    res.status(500).json({ message: err.message, stack: err.stack || null });
+    res.status(500).json({
+      message: err.message || "Error updating profile",
+      stack: process.env.NODE_ENV === "production" ? null : err.stack,
+    });
   }
 });
 
