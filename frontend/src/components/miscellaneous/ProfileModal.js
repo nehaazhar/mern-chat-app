@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -15,19 +15,22 @@ import {
   Box,
   Input,
 } from "@chakra-ui/react";
-import { ViewIcon } from "@chakra-ui/icons";
+import { ViewIcon, EditIcon } from "@chakra-ui/icons";
 
 const ProfileModal = ({ user, children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isEditing, setIsEditing] = useState(false);
   const [profileName, setProfileName] = useState(user?.name || "");
   const [profileEmail, setProfileEmail] = useState(user?.email || "");
+  const [profilePic, setProfilePic] = useState(user?.pic || "");
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       setProfileName(userInfo.name || user?.name || "");
       setProfileEmail(userInfo.email || user?.email || "");
+      setProfilePic(userInfo.pic || user?.pic || "");
     }
     setIsEditing(false);
   }, [isOpen, user?.name, user?.email]);
@@ -35,6 +38,7 @@ const ProfileModal = ({ user, children }) => {
   const handleClose = () => {
     setProfileName(user?.name || "");
     setProfileEmail(user?.email || "");
+    setProfilePic(user?.pic || "");
     setIsEditing(false);
     onClose();
   };
@@ -43,16 +47,21 @@ const ProfileModal = ({ user, children }) => {
     try {
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const token = userInfo.token;
+
+      const formData = new FormData();
+      formData.append("name", profileName);
+      formData.append("email", profileEmail);
+
+      if (fileInputRef.current?.files?.[0]) {
+        formData.append("pic", fileInputRef.current.files[0]);
+      }
+
       const response = await fetch("/api/user/profile", {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          name: profileName,
-          email: profileEmail,
-        }),
+        body: formData,
       });
 
       const data = await response.json();
@@ -60,13 +69,26 @@ const ProfileModal = ({ user, children }) => {
       if (response.ok) {
         userInfo.name = data.name;
         userInfo.email = data.email;
+        if (data.pic) userInfo.pic = data.pic;
         localStorage.setItem("userInfo", JSON.stringify(userInfo));
+        setProfilePic(data.pic || profilePic);
         setIsEditing(false);
       } else {
         console.log(data);
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePic(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -123,7 +145,36 @@ const ProfileModal = ({ user, children }) => {
             gap={{ base: 3, md: 6 }}
           >
             {isEditing ? (
-              <Box w="100%">
+              <Box w="100%" display="flex" flexDir="column" alignItems="center">
+                <Box position="relative" mb={6}>
+                  <Image
+                    borderRadius="full"
+                    h={{ base: "100px", md: "140px" }}
+                    w={{ base: "100px", md: "140px" }}
+                    src={profilePic}
+                    alt="Profile"
+                    objectFit="cover"
+                  />
+                  <IconButton
+                    icon={<EditIcon />}
+                    position="absolute"
+                    bottom={0}
+                    right={0}
+                    borderRadius="full"
+                    bg="blue.500"
+                    color="white"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    _hover={{ bg: "blue.600" }}
+                  />
+                  <Input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    display="none"
+                  />
+                </Box>
                 <Input
                   placeholder="Name"
                   value={profileName}
