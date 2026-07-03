@@ -26,10 +26,9 @@ const Homepage = () => {
 
     if (userInfo) {
       setUser(userInfo);
-      // ✅ FIX 2: Agar user pehle se login hai, toh use direct chats par bhejo
       navigate("/chats");
     }
-  }, [navigate, setUser]); // setUser ko dependency mein add karein
+  }, [navigate, setUser]);
 
   return (
     <Container maxW="xl" centerContent>

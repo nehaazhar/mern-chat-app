@@ -85,7 +85,6 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       pic: updatedUser.pic,
     });
   } catch (err) {
-    // Temporary: log full error and return stack for debugging on deployed service.
     console.error("updateUserProfile error:", err);
     res.status(500).json({ message: err.message, stack: err.stack || null });
   }

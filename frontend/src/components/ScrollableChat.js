@@ -28,11 +28,9 @@ const ScrollableChat = ({
   const { colorMode } = useColorMode();
   const [hoveredMessageId, setHoveredMessageId] = useState(null);
 
-  // Mark message as read when viewed
   useEffect(() => {
     if (messages && messages.length > 0) {
       messages.forEach((msg) => {
-        // Only mark incoming messages as read
         if (msg.sender._id !== user._id && !msg.readBy?.includes(user._id)) {
           const element = document.getElementById(`message-${msg._id}`);
           if (element) {
@@ -53,7 +51,6 @@ const ScrollableChat = ({
     }
   }, [messages, user._id, onMarkAsRead]);
 
-  // ✅ Common Image Helper
   const isImage = (url) => {
     return (
       typeof url === "string" &&
@@ -63,7 +60,6 @@ const ScrollableChat = ({
     );
   };
 
-  // ✅ Scroll to Original Message
   const scrollToMessage = (messageId) => {
     const element = document.getElementById(`message-${messageId}`);
     if (!element) return;
@@ -220,7 +216,6 @@ const ScrollableChat = ({
                 )}
               </Box>
 
-              {/* Read Status Indicator */}
               {m.sender._id === user._id && (
                 <Box display="flex" justifyContent="flex-end" mt="2px" px="4px">
                   <Text

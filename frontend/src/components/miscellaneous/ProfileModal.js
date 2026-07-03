@@ -25,7 +25,6 @@ const ProfileModal = ({ user, children }) => {
 
   useEffect(() => {
     if (isOpen) {
-      // Modal open hone par localStorage se latest data fetch kro
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       setProfileName(userInfo.name || user?.name || "");
       setProfileEmail(userInfo.email || user?.email || "");
@@ -96,7 +95,6 @@ const ProfileModal = ({ user, children }) => {
           boxShadow="0 20px 60px rgba(0,0,0,0.3)"
           borderRadius={{ base: "md", md: "xl" }}
         >
-          {/* User ka naam header mein */}
           <ModalHeader
             fontSize={{ base: "24px", md: "48px" }}
             fontFamily="Work sans"
@@ -134,7 +132,10 @@ const ProfileModal = ({ user, children }) => {
                   size={{ base: "sm", md: "lg" }}
                   fontSize={{ base: "14px", md: "16px" }}
                   p={{ base: "8px 12px", md: "12px 16px" }}
-                  _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.1)" }}
+                  _focus={{
+                    borderColor: "blue.400",
+                    boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.1)",
+                  }}
                 />
                 <Input
                   placeholder="Email"
@@ -143,9 +144,17 @@ const ProfileModal = ({ user, children }) => {
                   size={{ base: "sm", md: "lg" }}
                   fontSize={{ base: "14px", md: "16px" }}
                   p={{ base: "8px 12px", md: "12px 16px" }}
-                  _focus={{ borderColor: "blue.400", boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.1)" }}
+                  _focus={{
+                    borderColor: "blue.400",
+                    boxShadow: "0 0 0 3px rgba(66, 153, 225, 0.1)",
+                  }}
                 />
-                <Box mt={4} display="flex" gap={3} flexDir={{ base: "column", md: "row" }}>
+                <Box
+                  mt={4}
+                  display="flex"
+                  gap={3}
+                  flexDir={{ base: "column", md: "row" }}
+                >
                   <Button
                     colorScheme="green"
                     onClick={handleSave}

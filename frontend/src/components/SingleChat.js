@@ -165,7 +165,6 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
           },
         });
 
-        // Emit socket event for real-time update to other users
         socket.emit("message read", {
           messageId,
           chatId: selectedChat?._id,
@@ -298,71 +297,6 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     };
   }, [playNotificationSound, setFetchAgain, setNotification]);
 
-  // const submitMessage = async () => {
-  //   const trimmedMessage = newMessage.trim();
-  //   if (!trimmedMessage || !selectedChat) return;
-
-  //   socket.emit("stop typing", selectedChat._id);
-  //   setTyping(false);
-  //   setNewMessage("");
-  //   messageInputRef.current?.focus();
-
-  //   const optimisticMessage = {
-  //     _id: `temp-${Date.now()}`,
-  //     sender: {
-  //       _id: user._id,
-  //       name: user.name,
-  //       pic: user.pic,
-  //     },
-  //     content: trimmedMessage,
-  //     chat: selectedChat,
-  //     isOptimistic: true,
-  //   };
-
-  //   setMessages((prevMessages) => [...prevMessages, optimisticMessage]);
-
-  //   try {
-  //     const config = {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${user.token}`,
-  //       },
-  //     };
-
-  //     const { data } = await axios.post(
-  //       "/api/message",
-  //       {
-  //         content: trimmedMessage,
-  //         chatId: selectedChat._id,
-  //       },
-  //       config,
-  //     );
-
-  //     socket.emit("new message", data);
-  //     setMessages((prevMessages) =>
-  //       prevMessages.map((message) =>
-  //         message._id === optimisticMessage._id ? data : message,
-  //       ),
-  //     );
-  //   } catch (error) {
-  //     setMessages((prevMessages) =>
-  //       prevMessages.filter((message) => message._id !== optimisticMessage._id),
-  //     );
-  //     setNewMessage(trimmedMessage);
-
-  //     toast({
-  //       title: "Error Occured!",
-  //       description: "Failed to Send Messages",
-  //       status: "error",
-  //       duration: 5000,
-  //       isClosable: true,
-  //       position: "bottom",
-  //     });
-  //   } finally {
-  //     messageInputRef.current?.focus();
-  //   }
-  // };
-
   const submitMessage = async () => {
     const trimmedMessage = newMessage.trim();
     if (!trimmedMessage || !selectedChat) return;
@@ -372,17 +306,14 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     setNewMessage("");
 
     const currentReplyTo = replyTo;
-    setReplyTo(null); // Input ke upar se preview box turant hatane ke liye
+    setReplyTo(null);
 
-    // 2. Fir optimisticMessage me humne use poora ka poora pass kar diya
     const optimisticMessage = {
       _id: `temp-${Date.now()}`,
       sender: { _id: user._id, name: user.name, pic: user.pic },
       content: trimmedMessage,
       chat: selectedChat,
-
-      replyTo: currentReplyTo, // 🔥 YAHAN: Yeh line ensure karegi ki send karte hi screen par reply preview visible rahe!
-
+      replyTo: currentReplyTo,
       isOptimistic: true,
     };
 
@@ -441,38 +372,6 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     }
   };
 
-  // const sendImageMessage = async (imageUrl) => {
-  //   try {
-  //     const config = {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${user.token}`,
-  //       },
-  //     };
-
-  //     const { data } = await axios.post(
-  //       "/api/message",
-  //       {
-  //         content: imageUrl,
-  //         chatId: selectedChat._id,
-  //       },
-  //       config,
-  //     );
-
-  //     socket.emit("new message", data);
-  //     setMessages((prevMessages) => [...prevMessages, data]);
-  //   } catch (error) {
-  //     toast({
-  //       title: "Error Occured!",
-  //       description: "Failed to Send Image Message",
-  //       status: "error",
-  //       duration: 5000,
-  //       isClosable: true,
-  //       position: "bottom",
-  //     });
-  //   }
-  // };
-
   const sendImageMessage = async (imageUrl) => {
     try {
       const config = {
@@ -481,10 +380,8 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
         },
       };
 
-      // ✅ Reply state ko save kar lo
       const currentReplyTo = replyTo;
 
-      // ✅ UI se reply preview hata do
       setReplyTo(null);
 
       const { data } = await axios.post(
