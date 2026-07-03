@@ -244,7 +244,7 @@ const ProfileModal = ({ user, children }) => {
             flexDir="column"
             alignItems="center"
             justifyContent="center"
-            p={{ base: "12px", md: "40px 24px" }}
+            p={{ base: "12px", md: "0px" }}
             gap={{ base: 3, md: 6 }}
           >
             {isEditing ? (
