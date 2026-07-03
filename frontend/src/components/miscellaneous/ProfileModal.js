@@ -17,9 +17,11 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { ViewIcon, EditIcon } from "@chakra-ui/icons";
+import { ChatState } from "../../Context/ChatProvider";
 
 const ProfileModal = ({ user, children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { setUser } = ChatState();
   const [isEditing, setIsEditing] = useState(false);
   const [profileName, setProfileName] = useState(user?.name || "");
   const [profileEmail, setProfileEmail] = useState(user?.email || "");
@@ -96,6 +98,7 @@ const ProfileModal = ({ user, children }) => {
             setProfilePic(userInfo.pic);
             setProfileName(userInfo.name);
             setProfileEmail(userInfo.email);
+            setUser(userInfo); // Update context so menu avatar updates
             setIsEditing(false);
             toast({
               title: "Success",
@@ -143,6 +146,7 @@ const ProfileModal = ({ user, children }) => {
           localStorage.setItem("userInfo", JSON.stringify(userInfo));
           setProfileName(data.name);
           setProfileEmail(data.email);
+          setUser(userInfo); // Update context so menu avatar updates
           setIsEditing(false);
           toast({
             title: "Success",
