@@ -339,7 +339,7 @@ const ProfileModal = ({ user, children }) => {
                   borderRadius="full"
                   h={{ base: "100px", md: "160px" }}
                   w={{ base: "100px", md: "160px" }}
-                  src={user?.pic}
+                  src={profilePic}
                   alt={profileName || user?.name}
                   boxShadow="0 8px 20px rgba(0,0,0,0.15)"
                   _hover={{ transform: "scale(1.05)", transition: "all 0.3s" }}
