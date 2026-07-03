@@ -195,8 +195,8 @@ const SideDrawer = () => {
                   transition={{ type: "spring", stiffness: 400, damping: 15 }}
                   style={{
                     position: "absolute",
-                    top: "-2px",
-                    left: "22px",
+                    top: "5px",
+                    right: "126px",
                     zIndex: 10,
                     pointerEvents: "none",
                   }}
