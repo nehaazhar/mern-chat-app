@@ -20,8 +20,7 @@ import {
 import { ViewIcon, EditIcon } from "@chakra-ui/icons";
 import { ChatState } from "../../Context/ChatProvider";
 
-// Added isLoggedUser prop to differentiate between admin and other users
-const ProfileModal = ({ user, isLoggedUser = false, children }) => {
+const ProfileModal = ({ user, children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { setUser } = ChatState();
   const [isEditing, setIsEditing] = useState(false);
@@ -33,33 +32,19 @@ const ProfileModal = ({ user, isLoggedUser = false, children }) => {
 
   useEffect(() => {
     if (isOpen) {
-      if (isLoggedUser) {
-        // Only load from localStorage if it's the logged-in user's own profile
-        const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-        setProfileName(userInfo.name || user?.name || "");
-        setProfileEmail(userInfo.email || user?.email || "");
-        setProfilePic(userInfo.pic || user?.pic || "");
-      } else {
-        // Otherwise, strictly use the passed user props
-        setProfileName(user?.name || "");
-        setProfileEmail(user?.email || "");
-        setProfilePic(user?.pic || "");
-      }
-    }
-    setIsEditing(false);
-  }, [isOpen, user, isLoggedUser]);
-
-  const handleClose = () => {
-    if (isLoggedUser) {
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       setProfileName(userInfo.name || user?.name || "");
       setProfileEmail(userInfo.email || user?.email || "");
       setProfilePic(userInfo.pic || user?.pic || "");
-    } else {
-      setProfileName(user?.name || "");
-      setProfileEmail(user?.email || "");
-      setProfilePic(user?.pic || "");
     }
+    setIsEditing(false);
+  }, [isOpen, user?.name, user?.email, user?.pic]);
+
+  const handleClose = () => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+    setProfileName(userInfo.name || user?.name || "");
+    setProfileEmail(userInfo.email || user?.email || "");
+    setProfilePic(userInfo.pic || user?.pic || "");
     setIsEditing(false);
     onClose();
   };
@@ -219,7 +204,7 @@ const ProfileModal = ({ user, isLoggedUser = false, children }) => {
       )}
 
       <Modal
-        size={{ base: "sm", md: "md" }}
+        size={{ base: "sm", md: "md" }} // Adjusted size to 'md' for cleaner dimensions
         isOpen={isOpen}
         onClose={handleClose}
         isCentered
@@ -241,7 +226,7 @@ const ProfileModal = ({ user, isLoggedUser = false, children }) => {
             pb={2}
             color="gray.800"
           >
-            {profileName}
+            {profileName || user?.name}
           </ModalHeader>
 
           <ModalCloseButton
@@ -356,7 +341,7 @@ const ProfileModal = ({ user, isLoggedUser = false, children }) => {
                   h="150px"
                   w="150px"
                   src={profilePic}
-                  alt={profileName}
+                  alt={profileName || user?.name}
                   boxShadow="0 10px 25px -5px rgba(0,0,0,0.15)"
                   border="3px solid white"
                   outline="2px solid"
@@ -372,15 +357,14 @@ const ProfileModal = ({ user, isLoggedUser = false, children }) => {
                   color="gray.600"
                   fontWeight="500"
                 >
-                  {profileEmail}
+                  {profileEmail || user?.email}
                 </Text>
               </VStack>
             )}
           </ModalBody>
 
           <ModalFooter justifyContent="center" pb={6} pt={2}>
-            {/* Edit button will only show if it's the logged-in user's profile */}
-            {!isEditing && isLoggedUser && (
+            {!isEditing && (
               <Button
                 colorScheme="blue"
                 size="lg"

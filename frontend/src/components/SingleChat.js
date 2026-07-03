@@ -526,7 +526,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                     </Text>
                   </Box>
                 </Box>
-                <ProfileModal user={selectedUser} isLoggedUser={false} />
+                <ProfileModal user={selectedUser} />
               </Box>
             ) : (
               <Box
