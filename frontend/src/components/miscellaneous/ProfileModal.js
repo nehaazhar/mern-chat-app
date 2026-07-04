@@ -224,7 +224,7 @@ const ProfileModal = ({ user, children, colorMode }) => {
             justifyContent="center"
             pt={6}
             pb={2}
-            color="gray.800"
+            color={colorMode === "dark" ? "whiteAlpha.700" : "gray.800"}
           >
             {profileName || user?.name}
           </ModalHeader>
