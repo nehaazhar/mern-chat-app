@@ -249,7 +249,7 @@ const SideDrawer = () => {
               />
             </MenuButton>
             <MenuList zIndex={1000}>
-              <ProfileModal user={user}>
+              <ProfileModal user={user} colorMode={colorMode}>
                 <MenuItem>My Profile</MenuItem>
               </ProfileModal>
               <MenuDivider />

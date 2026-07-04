@@ -20,7 +20,7 @@ import {
 import { ViewIcon, EditIcon } from "@chakra-ui/icons";
 import { ChatState } from "../../Context/ChatProvider";
 
-const ProfileModal = ({ user, children }) => {
+const ProfileModal = ({ user, children, colorMode }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { setUser } = ChatState();
   const [isEditing, setIsEditing] = useState(false);
@@ -354,7 +354,7 @@ const ProfileModal = ({ user, children }) => {
                   fontFamily="Work sans"
                   textAlign="center"
                   wordBreak="break-word"
-                  color="gray.600"
+                  color={colorMode === "dark" ? "whiteAlpha.700" : "gray.600"}
                   fontWeight="500"
                 >
                   {profileEmail || user?.email}
