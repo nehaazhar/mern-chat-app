@@ -290,8 +290,12 @@ const ProfileModal = ({ user, children, colorMode }) => {
                     size="lg"
                     borderRadius="xl"
                     focusBorderColor="blue.400"
-                    bg="gray.50"
-                    color={colorMode === "dark" ? "whiteAlpha.700" : "gray.600"}
+                    bg={colorMode === "dark" ? "gray.700" : "gray.50"}
+                    color={colorMode === "dark" ? "white" : "gray.800"}
+                    _placeholder={{
+                      color:
+                        colorMode === "dark" ? "whiteAlpha.600" : "gray.400",
+                    }}
                   />
                   <Input
                     placeholder="Email"
@@ -300,8 +304,12 @@ const ProfileModal = ({ user, children, colorMode }) => {
                     size="lg"
                     borderRadius="xl"
                     focusBorderColor="blue.400"
-                    bg="gray.50"
-                    color={colorMode === "dark" ? "whiteAlpha.700" : "gray.600"}
+                    bg={colorMode === "dark" ? "gray.700" : "gray.50"}
+                    color={colorMode === "dark" ? "white" : "gray.800"}
+                    _placeholder={{
+                      color:
+                        colorMode === "dark" ? "whiteAlpha.600" : "gray.400",
+                    }}
                   />
                 </VStack>
 
