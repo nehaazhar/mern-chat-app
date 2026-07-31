@@ -22,34 +22,35 @@ import { ChatState } from "../../Context/ChatProvider";
 
 const ProfileModal = ({ user, children, colorMode }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { setUser } = ChatState();
+  const { user: loggedInUser, setUser } = ChatState();
   const [isEditing, setIsEditing] = useState(false);
   const [profileName, setProfileName] = useState(user?.name || "");
   const [profileEmail, setProfileEmail] = useState(user?.email || "");
   const [profilePic, setProfilePic] = useState(user?.pic || "");
   const fileInputRef = useRef(null);
   const toast = useToast();
+  const isOwnProfile = loggedInUser?._id === user?._id;
 
   useEffect(() => {
     if (isOpen) {
-      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-      setProfileName(userInfo.name || user?.name || "");
-      setProfileEmail(userInfo.email || user?.email || "");
-      setProfilePic(userInfo.pic || user?.pic || "");
+      setProfileName(user?.name || "");
+      setProfileEmail(user?.email || "");
+      setProfilePic(user?.pic || "");
     }
     setIsEditing(false);
   }, [isOpen, user?.name, user?.email, user?.pic]);
 
   const handleClose = () => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-    setProfileName(userInfo.name || user?.name || "");
-    setProfileEmail(userInfo.email || user?.email || "");
-    setProfilePic(userInfo.pic || user?.pic || "");
+    setProfileName(user?.name || "");
+    setProfileEmail(user?.email || "");
+    setProfilePic(user?.pic || "");
     setIsEditing(false);
     onClose();
   };
 
   const handleSave = async () => {
+    if (!isOwnProfile) return;
+
     try {
       const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const token = userInfo.token;
@@ -374,7 +375,7 @@ const ProfileModal = ({ user, children, colorMode }) => {
           </ModalBody>
 
           <ModalFooter justifyContent="center" pb={6} pt={2}>
-            {!isEditing && (
+            {isOwnProfile && !isEditing && (
               <Button
                 colorScheme="blue"
                 size="lg"
