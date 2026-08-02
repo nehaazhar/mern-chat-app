@@ -4,12 +4,14 @@ const Chat = require("../Models/chatModels");
 const Message = require("../Models/messageModels");
 
 const getOpenAIClient = () => {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY is not configured");
+  const apiKey = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY or GEMINI_API_KEY is not configured");
   }
 
   return new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey,
   });
 };
 
