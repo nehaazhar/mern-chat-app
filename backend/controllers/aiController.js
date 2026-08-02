@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const OpenAI = require("openai");
+const { GoogleGenAI } = require("@google/genai");
 const Chat = require("../Models/chatModels");
 const Message = require("../Models/messageModels");
 
@@ -15,70 +16,28 @@ const getOpenAIClient = () => {
   });
 };
 
-// Updated Gemini REST API Function with System Instruction & Proper Tokens
+// Official SDK implementation for Gemini
 const getGeminiResponse = async (prompt) => {
   const apiKey = process.env.GEMINI_API_KEY;
-  const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+  const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
-  const payload = {
-    system_instruction: {
-      parts: [
-        {
-          text: prompt.system,
-        },
-      ],
-    },
-    contents: [
-      {
-        role: "user",
-        parts: [
-          {
-            text: prompt.user,
-          },
-        ],
-      },
-    ],
-    generationConfig: {
+  const ai = new GoogleGenAI({ apiKey });
+
+  const response = await ai.models.generateContent({
+    model: modelName,
+    contents: prompt.user,
+    config: {
+      systemInstruction: prompt.system,
       temperature: 0.3,
-      maxOutputTokens: 300, // Tokens count badha diya hai taaki sentence cut-off na ho
+      maxOutputTokens: 300,
     },
-  };
+  });
 
-  // Try v1 API
-  let response = await fetch(
-    `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    },
-  );
-
-  // Fallback to v1beta if required
-  if (!response.ok && response.status === 404) {
-    response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      },
-    );
-  }
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Gemini API error ${response.status}: ${errorText}`);
-  }
-
-  const data = await response.json();
-  const content = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-  return content.trim();
+  return response.text ? response.text.trim() : "";
 };
 
 const modeInstructions = {
@@ -151,7 +110,7 @@ const assistMessage = asyncHandler(async (req, res) => {
   if (process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
     text = await getGeminiResponse({
       system:
-        "You are a helpful AI writing assistant for a messaging application. Output ONLY the rewritten or generated text. Do NOT wrap the answer in quotes, do NOT add explanations, and do NOT truncate the sentence.",
+        "You are a helpful AI writing assistant inside a chat application. Output ONLY the rewritten or generated response. Do NOT wrap the answer in quotes, do NOT add explanations, and do NOT truncate sentences.",
       user: [
         `Instruction: ${modeInstructions[mode]}`,
         `Context (Recent Chat History):\n${recentConversation}`,
@@ -169,7 +128,7 @@ const assistMessage = asyncHandler(async (req, res) => {
         {
           role: "system",
           content:
-            "You are a helpful AI writing assistant for a messaging application. Output ONLY the rewritten or generated text. Do NOT wrap the answer in quotes and do NOT add explanations.",
+            "You are a helpful AI writing assistant inside a chat application. Output ONLY the rewritten or generated response. Do NOT wrap the answer in quotes and do NOT add explanations.",
         },
         {
           role: "user",
