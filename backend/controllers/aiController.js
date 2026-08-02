@@ -4,15 +4,61 @@ const Chat = require("../Models/chatModels");
 const Message = require("../Models/messageModels");
 
 const getOpenAIClient = () => {
-  const apiKey = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    throw new Error("OPENAI_API_KEY or GEMINI_API_KEY is not configured");
+    throw new Error("OPENAI_API_KEY is not configured");
   }
 
   return new OpenAI({
     apiKey,
   });
+};
+
+const getGeminiResponse = async (prompt) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  const model = process.env.GEMINI_MODEL || "chat-bison-001";
+
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+
+  const url = `https://generativelanguage.googleapis.com/v1beta2/models/${model}:generateMessage?key=${apiKey}`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      temperature: 0.4,
+      candidateCount: 1,
+      messages: [
+        {
+          author: "system",
+          content: { text: prompt.system },
+        },
+        {
+          author: "user",
+          content: { text: prompt.user },
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Gemini API error ${response.status}: ${errorText}`);
+  }
+
+  const data = await response.json();
+  const content =
+    data?.candidates?.[0]?.content?.[0]?.text ||
+    data?.candidates?.[0]?.content?.text ||
+    data?.candidates?.[0]?.payload?.text ||
+    "";
+
+  return content.trim();
 };
 
 const modeInstructions = {
@@ -78,30 +124,43 @@ const assistMessage = asyncHandler(async (req, res) => {
       "No recent messages.";
   }
 
-  const openai = getOpenAIClient();
+  let text;
 
-  const completion = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-    temperature: 0.4,
-    max_tokens: 120,
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are an AI writing assistant inside a chat app. Do not explain your changes. Do not add quotes around the answer.",
-      },
-      {
-        role: "user",
-        content: [
-          `Task: ${modeInstructions[mode]}`,
-          `Recent conversation:\n${recentConversation}`,
-          `Draft message:\n${draft || ""}`,
-        ].join("\n\n"),
-      },
-    ],
-  });
+  if (process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
+    text = await getGeminiResponse({
+      system: "You are an AI writing assistant inside a chat app. Do not explain your changes. Do not add quotes around the answer.",
+      user: [
+        `Task: ${modeInstructions[mode]}`,
+        `Recent conversation:\n${recentConversation}`,
+        `Draft message:\n${draft || ""}`,
+      ].join("\n\n"),
+    });
+  } else {
+    const openai = getOpenAIClient();
 
-  const text = completion.choices?.[0]?.message?.content?.trim();
+    const completion = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      temperature: 0.4,
+      max_tokens: 120,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an AI writing assistant inside a chat app. Do not explain your changes. Do not add quotes around the answer.",
+        },
+        {
+          role: "user",
+          content: [
+            `Task: ${modeInstructions[mode]}`,
+            `Recent conversation:\n${recentConversation}`,
+            `Draft message:\n${draft || ""}`,
+          ].join("\n\n"),
+        },
+      ],
+    });
+
+    text = completion.choices?.[0]?.message?.content?.trim();
+  }
 
   if (!text) {
     return res.status(502).json({ message: "AI did not return a response" });
