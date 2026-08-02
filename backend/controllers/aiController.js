@@ -15,15 +15,16 @@ const getOpenAIClient = () => {
   });
 };
 
+// Updated Gemini REST API Function (Supports latest models like gemini-1.5-flash / gemini-2.0-flash)
 const getGeminiResponse = async (prompt) => {
   const apiKey = process.env.GEMINI_API_KEY;
-  const model = process.env.GEMINI_MODEL || "chat-bison-001";
+  const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
 
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta2/models/${model}:generateMessage?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const response = await fetch(url, {
     method: "POST",
@@ -31,21 +32,19 @@ const getGeminiResponse = async (prompt) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      config: {
-        temperature: 0.4,
-        candidateCount: 1,
-        maxOutputTokens: 120,
-      },
       contents: [
         {
-          type: "text",
-          text: prompt.system,
-        },
-        {
-          type: "text",
-          text: prompt.user,
+          parts: [
+            {
+              text: `${prompt.system}\n\n${prompt.user}`,
+            },
+          ],
         },
       ],
+      generationConfig: {
+        temperature: 0.4,
+        maxOutputTokens: 120,
+      },
     }),
   });
 
@@ -55,11 +54,7 @@ const getGeminiResponse = async (prompt) => {
   }
 
   const data = await response.json();
-  const content =
-    data?.candidates?.[0]?.content?.[0]?.text ||
-    data?.candidates?.[0]?.content?.text ||
-    data?.candidates?.[0]?.payload?.text ||
-    "";
+  const content = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
   return content.trim();
 };
