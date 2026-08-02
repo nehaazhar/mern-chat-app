@@ -739,8 +739,8 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 display="flex"
                 flexDirection={{ base: "column", md: "row" }}
                 alignItems="center"
-                gap={4}
-                p={4}
+                gap={3}
+                p={3}
                 bg={colorMode === "dark" ? "gray.800" : "white"}
                 border="1px solid"
                 borderColor={colorMode === "dark" ? "gray.700" : "gray.200"}
@@ -755,7 +755,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                   display="flex"
                   flexDirection={{ base: "row", md: "column" }}
                   alignItems="stretch"
-                  gap={3}
+                  gap={2}
                   minW={{ base: "100%", md: "220px" }}
                 >
                   <Select
@@ -766,7 +766,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                     color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
                     borderRadius="2xl"
                     borderColor={colorMode === "dark" ? "gray.600" : "gray.200"}
-                    py={6}
+                    py={3}
                   >
                     <option value="friendly">Friendly</option>
                     <option value="professional">Professional</option>
@@ -775,14 +775,14 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                   </Select>
 
                   <Button
-                    size="lg"
+                    size="md"
                     colorScheme="purple"
                     isLoading={aiLoading}
                     loadingText="AI"
                     onClick={assistWithAI}
                     borderRadius="2xl"
-                    px={8}
-                    py={6}
+                    px={6}
+                    py={3}
                     boxShadow="md"
                   >
                     AI Assist
@@ -792,7 +792,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 <Box
                   display="flex"
                   alignItems="center"
-                  gap={3}
+                  gap={2}
                   flex={1}
                 >
                   <Input
@@ -804,9 +804,9 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                     value={newMessage}
                     placeholder="Type your message..."
                     borderRadius="3xl"
-                    px={5}
-                    py={6}
-                    minH="64px"
+                    px={4}
+                    py={4}
+                    minH="52px"
                     _placeholder={{
                       color: colorMode === "dark" ? "gray.400" : "gray.400",
                     }}
@@ -822,7 +822,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                       bg: colorMode === "dark" ? "gray.600" : "gray.200",
                     }}
                     onClick={() => fileInputRef.current.click()}
-                    size="lg"
+                    size="md"
                   />
 
                   <IconButton
@@ -833,7 +833,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                     isDisabled={!newMessage.trim()}
                     onPointerDown={(event) => event.preventDefault()}
                     onClick={submitMessage}
-                    size="lg"
+                    size="md"
                   />
                 </Box>
               </Box>
