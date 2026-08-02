@@ -33,16 +33,19 @@ const getGeminiResponse = async (prompt) => {
     body: JSON.stringify({
       temperature: 0.4,
       candidateCount: 1,
-      messages: [
-        {
-          author: "system",
-          content: { text: prompt.system },
-        },
-        {
-          author: "user",
-          content: { text: prompt.user },
-        },
-      ],
+      maxOutputTokens: 120,
+      message: {
+        content: [
+          {
+            type: "text",
+            text: prompt.system,
+          },
+          {
+            type: "text",
+            text: prompt.user,
+          },
+        ],
+      },
     }),
   });
 
