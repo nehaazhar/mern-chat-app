@@ -8,6 +8,8 @@ import {
   FormControl,
   Input,
   Image,
+  Select,
+  Button,
   useToast,
   useColorMode,
 } from "@chakra-ui/react";
@@ -44,6 +46,8 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
 
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiMode, setAiMode] = useState("friendly");
   const typingTimerRef = useRef(null);
   const fileInputRef = useRef(null);
   const messageInputRef = useRef(null);
@@ -372,6 +376,81 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
     }
   };
 
+  const assistWithAI = async () => {
+    const draft = newMessage.trim();
+
+    if (!selectedChat) {
+      toast({
+        title: "Select a chat",
+        description: "Pick a conversation before using AI assist.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+
+    if (aiMode !== "suggest_reply" && !draft) {
+      toast({
+        title: "Draft message needed",
+        description: "Type a draft first and then try AI assist.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+
+    try {
+      setAiLoading(true);
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+
+      const { data } = await axios.post(
+        "/api/ai/message-assist",
+        {
+          mode: aiMode,
+          draft,
+          chatId: selectedChat._id,
+        },
+        config,
+      );
+
+      setNewMessage(data.text || "");
+      messageInputRef.current?.focus();
+
+      toast({
+        title: "AI draft ready",
+        description: "Your message has been improved and inserted into the composer.",
+        status: "success",
+        duration: 2500,
+        isClosable: true,
+        position: "bottom",
+      });
+    } catch (error) {
+      const description =
+        error.response?.data?.message || "Could not generate AI suggestion.";
+
+      toast({
+        title: "AI assist failed",
+        description,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const sendImageMessage = async (imageUrl) => {
     try {
       const config = {
@@ -655,7 +734,7 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 </Box>
               )}
 
-              <Box display="flex" alignItems="center" gap={2}>
+              <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
                 <input
                   type="file"
                   accept="image/*"
@@ -663,6 +742,30 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                   style={{ display: "none" }}
                   onChange={imageSelectHandler}
                 />
+
+                <Select
+                  size="sm"
+                  maxW="160px"
+                  value={aiMode}
+                  onChange={(e) => setAiMode(e.target.value)}
+                  bg={colorMode === "dark" ? "gray.600" : "#F5F5F5"}
+                  color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
+                >
+                  <option value="friendly">Friendly</option>
+                  <option value="professional">Professional</option>
+                  <option value="fix_grammar">Fix grammar</option>
+                  <option value="suggest_reply">Suggest reply</option>
+                </Select>
+
+                <Button
+                  size="sm"
+                  colorScheme="purple"
+                  isLoading={aiLoading}
+                  loadingText="AI"
+                  onClick={assistWithAI}
+                >
+                  AI Assist
+                </Button>
 
                 <IconButton
                   icon={<AttachmentIcon />}

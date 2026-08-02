@@ -10,6 +10,7 @@ const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 const path = require("path");
 
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
@@ -25,6 +26,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/notification", notificationRoutes);
+app.use("/api/ai", aiRoutes);
 
 //----------------Deployment Logic (Local Testing Direct Setup)------------
 const __dirname1 = path.resolve();
@@ -151,3 +153,5 @@ io.on("connection", (socket) => {
 });
 
 app.use("/api/notification", notificationRoutes);
+app.use("/api/ai", aiRoutes);
+
