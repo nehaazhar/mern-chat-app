@@ -739,24 +739,22 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 display="flex"
                 flexDirection={{ base: "column", md: "row" }}
                 alignItems="center"
-                gap={2}
+                gap={3}
+                p={3}
+                bg={colorMode === "dark" ? "gray.700" : "white"}
+                borderRadius="2xl"
+                boxShadow={colorMode === "dark" ? "0 10px 30px rgba(0,0,0,0.18)" : "0 8px 24px rgba(149, 157, 165, 0.2)"}
               >
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  gap={2}
-                  flexWrap="wrap"
-                  flex={1}
-                >
+                <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
                   <Select
                     size="sm"
-                    maxW={{ base: "100%", md: "180px" }}
+                    maxW={{ base: "100%", md: "200px" }}
                     value={aiMode}
                     onChange={(e) => setAiMode(e.target.value)}
-                    bg={colorMode === "dark" ? "gray.600" : "#F8FAFC"}
+                    bg={colorMode === "dark" ? "gray.600" : "gray.50"}
                     color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
-                    borderColor={colorMode === "dark" ? "gray.500" : "gray.300"}
-                    borderRadius="lg"
+                    borderColor={colorMode === "dark" ? "gray.500" : "gray.200"}
+                    borderRadius="2xl"
                   >
                     <option value="friendly">Friendly</option>
                     <option value="professional">Professional</option>
@@ -770,44 +768,41 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                     isLoading={aiLoading}
                     loadingText="AI"
                     onClick={assistWithAI}
-                    borderRadius="xl"
+                    borderRadius="2xl"
                     px={6}
                     py={5}
-                    boxShadow="sm"
+                    boxShadow="xs"
                   >
                     AI Assist
                   </Button>
                 </Box>
 
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  flex={1}
-                  gap={2}
-                >
-                  <IconButton
-                    icon={<AttachmentIcon />}
-                    aria-label="Attach File"
-                    bg={colorMode === "dark" ? "gray.600" : "#E0E0E0"}
-                    color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
-                    _hover={{
-                      bg: colorMode === "dark" ? "gray.500" : "#D0D0D0",
-                    }}
-                    onClick={() => fileInputRef.current.click()}
-                  />
-
+                <Box display="flex" alignItems="center" gap={2} flex={1}>
                   <Input
                     ref={messageInputRef}
                     variant="filled"
-                    bg={colorMode === "dark" ? "gray.600" : "#F8FAFC"}
+                    bg={colorMode === "dark" ? "gray.600" : "gray.50"}
                     color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
                     onChange={typingHandler}
                     value={newMessage}
-                    placeholder="Enter a message.."
-                    borderRadius="full"
+                    placeholder="Type your message..."
+                    borderRadius="2xl"
                     px={4}
                     py={5}
-                    minH="54px"
+                    minH="56px"
+                  />
+
+                  <IconButton
+                    icon={<AttachmentIcon />}
+                    aria-label="Attach File"
+                    bg={colorMode === "dark" ? "gray.600" : "gray.50"}
+                    color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
+                    borderRadius="full"
+                    _hover={{
+                      bg: colorMode === "dark" ? "gray.500" : "gray.200",
+                    }}
+                    onClick={() => fileInputRef.current.click()}
+                    size="md"
                   />
 
                   <IconButton
