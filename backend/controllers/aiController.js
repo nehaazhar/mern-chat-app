@@ -15,7 +15,7 @@ const getOpenAIClient = () => {
   });
 };
 
-// Updated Gemini REST API Function (Supports v1 API & fallback)
+// Updated Gemini REST API Function with System Instruction & Proper Tokens
 const getGeminiResponse = async (prompt) => {
   const apiKey = process.env.GEMINI_API_KEY;
   const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
@@ -24,55 +24,50 @@ const getGeminiResponse = async (prompt) => {
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
-  // Using v1 endpoint (standard for AI Studio keys)
-  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
-
-  let response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      contents: [
+  const payload = {
+    system_instruction: {
+      parts: [
         {
-          parts: [
-            {
-              text: `${prompt.system}\n\n${prompt.user}`,
-            },
-          ],
+          text: prompt.system,
         },
       ],
-      generationConfig: {
-        temperature: 0.4,
-        maxOutputTokens: 120,
-      },
-    }),
-  });
-
-  // Fallback to gemini-2.5-flash if 1.5 is not found
-  if (!response.ok && response.status === 404) {
-    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-    response = await fetch(fallbackUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: [
+    },
+    contents: [
+      {
+        role: "user",
+        parts: [
           {
-            parts: [
-              {
-                text: `${prompt.system}\n\n${prompt.user}`,
-              },
-            ],
+            text: prompt.user,
           },
         ],
-        generationConfig: {
-          temperature: 0.4,
-          maxOutputTokens: 120,
-        },
-      }),
-    });
+      },
+    ],
+    generationConfig: {
+      temperature: 0.3,
+      maxOutputTokens: 300, // Tokens count badha diya hai taaki sentence cut-off na ho
+    },
+  };
+
+  // Try v1 API
+  let response = await fetch(
+    `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  // Fallback to v1beta if required
+  if (!response.ok && response.status === 404) {
+    response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+    );
   }
 
   if (!response.ok) {
@@ -88,13 +83,13 @@ const getGeminiResponse = async (prompt) => {
 
 const modeInstructions = {
   fix_grammar:
-    "Fix grammar and clarity while keeping the user's meaning and tone. Return only the improved message.",
+    "Fix grammar, spelling, and clarity while keeping the original meaning and tone.",
   friendly:
-    "Rewrite the draft in a warm, friendly tone. Keep it concise. Return only the rewritten message.",
+    "Rewrite the draft message in a warm, polite, and friendly conversational tone.",
   professional:
-    "Rewrite the draft in a polite, professional tone. Keep it concise. Return only the rewritten message.",
+    "Rewrite the draft message in a professional, clear, and business-appropriate tone.",
   suggest_reply:
-    "Suggest one natural, concise reply based on the recent conversation. Return only the reply text.",
+    "Generate a natural, helpful, and concise response to the recent conversation.",
 };
 
 const formatRecentMessages = (messages, currentUserId) => {
@@ -142,7 +137,7 @@ const assistMessage = asyncHandler(async (req, res) => {
 
     const messages = await Message.find({ chat: chatId })
       .sort({ createdAt: -1 })
-      .limit(12)
+      .limit(10)
       .populate("sender", "name")
       .lean();
 
@@ -156,11 +151,11 @@ const assistMessage = asyncHandler(async (req, res) => {
   if (process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
     text = await getGeminiResponse({
       system:
-        "You are an AI writing assistant inside a chat app. Do not explain your changes. Do not add quotes around the answer.",
+        "You are a helpful AI writing assistant for a messaging application. Output ONLY the rewritten or generated text. Do NOT wrap the answer in quotes, do NOT add explanations, and do NOT truncate the sentence.",
       user: [
-        `Task: ${modeInstructions[mode]}`,
-        `Recent conversation:\n${recentConversation}`,
-        `Draft message:\n${draft || ""}`,
+        `Instruction: ${modeInstructions[mode]}`,
+        `Context (Recent Chat History):\n${recentConversation}`,
+        `Original Draft to Rewrite: "${draft || ""}"`,
       ].join("\n\n"),
     });
   } else {
@@ -169,19 +164,19 @@ const assistMessage = asyncHandler(async (req, res) => {
     const completion = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
       temperature: 0.4,
-      max_tokens: 120,
+      max_tokens: 300,
       messages: [
         {
           role: "system",
           content:
-            "You are an AI writing assistant inside a chat app. Do not explain your changes. Do not add quotes around the answer.",
+            "You are a helpful AI writing assistant for a messaging application. Output ONLY the rewritten or generated text. Do NOT wrap the answer in quotes and do NOT add explanations.",
         },
         {
           role: "user",
           content: [
-            `Task: ${modeInstructions[mode]}`,
-            `Recent conversation:\n${recentConversation}`,
-            `Draft message:\n${draft || ""}`,
+            `Instruction: ${modeInstructions[mode]}`,
+            `Context (Recent Chat History):\n${recentConversation}`,
+            `Original Draft to Rewrite: "${draft || ""}"`,
           ].join("\n\n"),
         },
       ],
