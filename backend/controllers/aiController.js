@@ -15,7 +15,7 @@ const getOpenAIClient = () => {
   });
 };
 
-// Updated Gemini REST API Function (Supports latest models like gemini-1.5-flash / gemini-2.0-flash)
+// Updated Gemini REST API Function (Supports v1 API & fallback)
 const getGeminiResponse = async (prompt) => {
   const apiKey = process.env.GEMINI_API_KEY;
   const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
@@ -24,9 +24,10 @@ const getGeminiResponse = async (prompt) => {
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  // Using v1 endpoint (standard for AI Studio keys)
+  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
 
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -47,6 +48,32 @@ const getGeminiResponse = async (prompt) => {
       },
     }),
   });
+
+  // Fallback to gemini-2.5-flash if 1.5 is not found
+  if (!response.ok && response.status === 404) {
+    const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    response = await fetch(fallbackUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: `${prompt.system}\n\n${prompt.user}`,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.4,
+          maxOutputTokens: 120,
+        },
+      }),
+    });
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
