@@ -735,69 +735,92 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                 </Box>
               )}
 
-              <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  style={{ display: "none" }}
-                  onChange={imageSelectHandler}
-                />
-
-                <Select
-                  size="sm"
-                  maxW="160px"
-                  value={aiMode}
-                  onChange={(e) => setAiMode(e.target.value)}
-                  bg={colorMode === "dark" ? "gray.600" : "#F5F5F5"}
-                  color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
+              <Box
+                display="flex"
+                flexDirection={{ base: "column", md: "row" }}
+                alignItems="center"
+                gap={2}
+              >
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                  flexWrap="wrap"
+                  flex={1}
                 >
-                  <option value="friendly">Friendly</option>
-                  <option value="professional">Professional</option>
-                  <option value="fix_grammar">Fix grammar</option>
-                  <option value="suggest_reply">Suggest reply</option>
-                </Select>
+                  <Select
+                    size="sm"
+                    maxW={{ base: "100%", md: "180px" }}
+                    value={aiMode}
+                    onChange={(e) => setAiMode(e.target.value)}
+                    bg={colorMode === "dark" ? "gray.600" : "#F8FAFC"}
+                    color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
+                    borderColor={colorMode === "dark" ? "gray.500" : "gray.300"}
+                    borderRadius="lg"
+                  >
+                    <option value="friendly">Friendly</option>
+                    <option value="professional">Professional</option>
+                    <option value="fix_grammar">Fix grammar</option>
+                    <option value="suggest_reply">Suggest reply</option>
+                  </Select>
 
-                <Button
-                  size="sm"
-                  colorScheme="purple"
-                  isLoading={aiLoading}
-                  loadingText="AI"
-                  onClick={assistWithAI}
+                  <Button
+                    size="sm"
+                    colorScheme="purple"
+                    isLoading={aiLoading}
+                    loadingText="AI"
+                    onClick={assistWithAI}
+                    borderRadius="xl"
+                    px={6}
+                    py={5}
+                    boxShadow="sm"
+                  >
+                    AI Assist
+                  </Button>
+                </Box>
+
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  flex={1}
+                  gap={2}
                 >
-                  AI Assist
-                </Button>
+                  <IconButton
+                    icon={<AttachmentIcon />}
+                    aria-label="Attach File"
+                    bg={colorMode === "dark" ? "gray.600" : "#E0E0E0"}
+                    color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
+                    _hover={{
+                      bg: colorMode === "dark" ? "gray.500" : "#D0D0D0",
+                    }}
+                    onClick={() => fileInputRef.current.click()}
+                  />
 
-                <IconButton
-                  icon={<AttachmentIcon />}
-                  aria-label="Attach File"
-                  bg={colorMode === "dark" ? "gray.600" : "#E0E0E0"}
-                  color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
-                  _hover={{
-                    bg: colorMode === "dark" ? "gray.500" : "#D0D0D0",
-                  }}
-                  onClick={() => fileInputRef.current.click()}
-                />
+                  <Input
+                    ref={messageInputRef}
+                    variant="filled"
+                    bg={colorMode === "dark" ? "gray.600" : "#F8FAFC"}
+                    color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
+                    onChange={typingHandler}
+                    value={newMessage}
+                    placeholder="Enter a message.."
+                    borderRadius="full"
+                    px={4}
+                    py={5}
+                    minH="54px"
+                  />
 
-                <Input
-                  ref={messageInputRef}
-                  variant="filled"
-                  bg={colorMode === "dark" ? "gray.600" : "#E0E0E0"}
-                  color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
-                  onChange={typingHandler}
-                  value={newMessage}
-                  placeholder="Enter a message.."
-                />
-
-                <IconButton
-                  icon={<ArrowForwardIcon />}
-                  aria-label="Send Message"
-                  colorScheme="green"
-                  borderRadius="full"
-                  isDisabled={!newMessage.trim()}
-                  onPointerDown={(event) => event.preventDefault()}
-                  onClick={submitMessage}
-                />
+                  <IconButton
+                    icon={<ArrowForwardIcon />}
+                    aria-label="Send Message"
+                    colorScheme="green"
+                    borderRadius="full"
+                    isDisabled={!newMessage.trim()}
+                    onPointerDown={(event) => event.preventDefault()}
+                    onClick={submitMessage}
+                    size="lg"
+                  />
+                </Box>
               </Box>
             </FormControl>
           </Box>
