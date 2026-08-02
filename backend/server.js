@@ -154,4 +154,3 @@ io.on("connection", (socket) => {
 
 app.use("/api/notification", notificationRoutes);
 app.use("/api/ai", aiRoutes);
-

@@ -428,7 +428,8 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
 
       toast({
         title: "AI draft ready",
-        description: "Your message has been improved and inserted into the composer.",
+        description:
+          "Your message has been improved and inserted into the composer.",
         status: "success",
         duration: 2500,
         isClosable: true,

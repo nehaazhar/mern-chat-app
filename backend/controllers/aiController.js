@@ -31,21 +31,21 @@ const getGeminiResponse = async (prompt) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      temperature: 0.4,
-      candidateCount: 1,
-      maxOutputTokens: 120,
-      message: {
-        content: [
-          {
-            type: "text",
-            text: prompt.system,
-          },
-          {
-            type: "text",
-            text: prompt.user,
-          },
-        ],
+      config: {
+        temperature: 0.4,
+        candidateCount: 1,
+        maxOutputTokens: 120,
       },
+      contents: [
+        {
+          type: "text",
+          text: prompt.system,
+        },
+        {
+          type: "text",
+          text: prompt.user,
+        },
+      ],
     }),
   });
 
@@ -80,7 +80,9 @@ const formatRecentMessages = (messages, currentUserId) => {
     .map((message) => {
       const senderId = message.sender?._id?.toString();
       const senderName =
-        senderId === currentUserId ? "You" : message.sender?.name || "Other user";
+        senderId === currentUserId
+          ? "You"
+          : message.sender?.name || "Other user";
 
       return `${senderName}: ${message.content}`;
     })
@@ -131,7 +133,8 @@ const assistMessage = asyncHandler(async (req, res) => {
 
   if (process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
     text = await getGeminiResponse({
-      system: "You are an AI writing assistant inside a chat app. Do not explain your changes. Do not add quotes around the answer.",
+      system:
+        "You are an AI writing assistant inside a chat app. Do not explain your changes. Do not add quotes around the answer.",
       user: [
         `Task: ${modeInstructions[mode]}`,
         `Recent conversation:\n${recentConversation}`,
