@@ -3,9 +3,15 @@ const OpenAI = require("openai");
 const Chat = require("../Models/chatModels");
 const Message = require("../Models/messageModels");
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const getOpenAIClient = () => {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY is not configured");
+  }
+
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+};
 
 const modeInstructions = {
   fix_grammar:
@@ -67,6 +73,8 @@ const assistMessage = asyncHandler(async (req, res) => {
       formatRecentMessages(messages.reverse(), req.user._id.toString()) ||
       "No recent messages.";
   }
+
+  const openai = getOpenAIClient();
 
   const completion = await openai.chat.completions.create({
     model: process.env.OPENAI_MODEL || "gpt-4o-mini",

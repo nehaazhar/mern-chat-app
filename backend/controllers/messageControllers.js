@@ -52,7 +52,7 @@ const sendMessage = asyncHandler(async (req, resp) => {
       latestMessage: message,
     });
 
-    const currentChat = await Chat.findById(chatId);
+    const currentChat = await Chat.findById(chatId).lean();
     if (currentChat && currentChat.users) {
       const notificationPromises = currentChat.users
         .filter((userId) => userId.toString() !== req.user._id.toString())
@@ -85,7 +85,8 @@ const allMessages = asyncHandler(async (req, res) => {
           select: "name pic email",
         },
       })
-      .populate("readBy", "name pic email");
+      .populate("readBy", "name pic email")
+      .lean();
 
     res.json(messages);
   } catch (error) {

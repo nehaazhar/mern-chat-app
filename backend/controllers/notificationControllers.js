@@ -8,7 +8,8 @@ const getNotifications = asyncHandler(async (req, res) => {
         path: "chat",
         populate: { path: "users", select: "name pic email" },
       })
-      .populate("message");
+      .populate("message")
+      .lean();
 
     const formattedNotifications = dbNotifications
       .map((notif) => {

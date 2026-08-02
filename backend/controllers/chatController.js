@@ -18,7 +18,8 @@ const accessChat = asyncHandler(async (req, res) => {
     ],
   })
     .populate("users", "-password")
-    .populate("latestMessage");
+    .populate("latestMessage")
+    .lean();
 
   isChat = await User.populate(isChat, {
     path: "latestMessage.sender",
@@ -36,10 +37,9 @@ const accessChat = asyncHandler(async (req, res) => {
 
     try {
       const createdChat = await Chat.create(chatData);
-      const FullChat = await Chat.findOne({ _id: createdChat._id }).populate(
-        "users",
-        "-password",
-      );
+      const FullChat = await Chat.findOne({ _id: createdChat._id })
+        .populate("users", "-password")
+        .lean();
 
       res.status(200).json(FullChat);
     } catch (error) {
@@ -56,7 +56,8 @@ const fetchChat = asyncHandler(async (req, res) => {
     .populate("users", "-password")
     .populate("groupAdmin", "-password")
     .populate("latestMessage")
-    .sort({ updatedAt: -1 });
+    .sort({ updatedAt: -1 })
+    .lean();
 
   chats = await User.populate(chats, {
     path: "latestMessage.sender",
@@ -94,7 +95,8 @@ const createGroupChat = asyncHandler(async (req, res) => {
 
   const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
     .populate("users", "-password")
-    .populate("groupAdmin", "-password");
+    .populate("groupAdmin", "-password")
+    .lean();
 
   res.status(200).json(fullGroupChat);
 });
@@ -112,7 +114,8 @@ const renameGroup = asyncHandler(async (req, res) => {
     },
   )
     .populate("users", "-password")
-    .populate("groupAdmin", "-password");
+    .populate("groupAdmin", "-password")
+    .lean();
 
   if (!updatedChat) {
     res.status(404);
@@ -134,7 +137,8 @@ const addToGroup = asyncHandler(async (req, res) => {
     },
   )
     .populate("users", "-password")
-    .populate("groupAdmin", "-password");
+    .populate("groupAdmin", "-password")
+    .lean();
 
   if (!added) {
     res.status(404);
@@ -156,7 +160,8 @@ const removeFromGroup = asyncHandler(async (req, res) => {
     },
   )
     .populate("users", "-password")
-    .populate("groupAdmin", "-password");
+    .populate("groupAdmin", "-password")
+    .lean();
 
   if (!removed) {
     res.status(404);
