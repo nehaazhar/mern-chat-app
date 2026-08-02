@@ -10,6 +10,13 @@ import {
   Image,
   Select,
   Button,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverHeader,
+  PopoverBody,
   useToast,
   useColorMode,
 } from "@chakra-ui/react";
@@ -606,7 +613,50 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                     </Text>
                   </Box>
                 </Box>
-                <ProfileModal user={selectedUser} />
+                <Box display="flex" alignItems="center" gap={2}>
+                  <ProfileModal user={selectedUser} />
+                  <Popover placement="bottom-end">
+                    <PopoverTrigger>
+                      <Button size="sm" colorScheme="purple" variant="outline">
+                        AI Assist
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      bg={colorMode === "dark" ? "gray.700" : "white"}
+                      borderColor={colorMode === "dark" ? "gray.600" : "gray.200"}
+                    >
+                      <PopoverArrow />
+                      <PopoverCloseButton />
+                      <PopoverHeader>AI Assist</PopoverHeader>
+                      <PopoverBody>
+                        <Select
+                          size="sm"
+                          value={aiMode}
+                          onChange={(e) => setAiMode(e.target.value)}
+                          mb={3}
+                          bg={colorMode === "dark" ? "gray.700" : "gray.50"}
+                          color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
+                          borderRadius="2xl"
+                          borderColor={colorMode === "dark" ? "gray.600" : "gray.200"}
+                        >
+                          <option value="friendly">Friendly</option>
+                          <option value="professional">Professional</option>
+                          <option value="fix_grammar">Fix grammar</option>
+                          <option value="suggest_reply">Suggest reply</option>
+                        </Select>
+                        <Button
+                          size="sm"
+                          width="100%"
+                          colorScheme="purple"
+                          isLoading={aiLoading}
+                          onClick={assistWithAI}
+                        >
+                          Run AI
+                        </Button>
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Popover>
+                </Box>
               </Box>
             ) : (
               <Box
@@ -624,11 +674,54 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                     {onlineGroupUsersCount} online
                   </Text>
                 </Box>
-                <UpdateGroupChatModal
-                  fetchAgain={fetchAgain}
-                  setFetchAgain={setFetchAgain}
-                  fetchMessages={fetchMessages}
-                />
+                <Box display="flex" alignItems="center" gap={2}>
+                  <UpdateGroupChatModal
+                    fetchAgain={fetchAgain}
+                    setFetchAgain={setFetchAgain}
+                    fetchMessages={fetchMessages}
+                  />
+                  <Popover placement="bottom-end">
+                    <PopoverTrigger>
+                      <Button size="sm" colorScheme="purple" variant="outline">
+                        AI Assist
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      bg={colorMode === "dark" ? "gray.700" : "white"}
+                      borderColor={colorMode === "dark" ? "gray.600" : "gray.200"}
+                    >
+                      <PopoverArrow />
+                      <PopoverCloseButton />
+                      <PopoverHeader>AI Assist</PopoverHeader>
+                      <PopoverBody>
+                        <Select
+                          size="sm"
+                          value={aiMode}
+                          onChange={(e) => setAiMode(e.target.value)}
+                          mb={3}
+                          bg={colorMode === "dark" ? "gray.700" : "gray.50"}
+                          color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
+                          borderRadius="2xl"
+                          borderColor={colorMode === "dark" ? "gray.600" : "gray.200"}
+                        >
+                          <option value="friendly">Friendly</option>
+                          <option value="professional">Professional</option>
+                          <option value="fix_grammar">Fix grammar</option>
+                          <option value="suggest_reply">Suggest reply</option>
+                        </Select>
+                        <Button
+                          size="sm"
+                          width="100%"
+                          colorScheme="purple"
+                          isLoading={aiLoading}
+                          onClick={assistWithAI}
+                        >
+                          Run AI
+                        </Button>
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Popover>
+                </Box>
               </Box>
             )}
           </Text>
@@ -737,9 +830,8 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
 
               <Box
                 display="flex"
-                flexDirection={{ base: "column", md: "row" }}
                 alignItems="center"
-                gap={3}
+                gap={2}
                 p={3}
                 bg={colorMode === "dark" ? "gray.800" : "white"}
                 border="1px solid"
@@ -751,91 +843,46 @@ function SIngleChat({ fetchAgain, setFetchAgain }) {
                     : "0 20px 60px rgba(99, 102, 241, 0.08)"
                 }
               >
-                <Box
-                  display="flex"
-                  flexDirection={{ base: "row", md: "column" }}
-                  alignItems="stretch"
-                  gap={2}
-                  minW={{ base: "100%", md: "220px" }}
-                >
-                  <Select
-                    size="md"
-                    value={aiMode}
-                    onChange={(e) => setAiMode(e.target.value)}
-                    bg={colorMode === "dark" ? "gray.700" : "gray.50"}
-                    color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
-                    borderRadius="2xl"
-                    borderColor={colorMode === "dark" ? "gray.600" : "gray.200"}
-                    py={3}
-                  >
-                    <option value="friendly">Friendly</option>
-                    <option value="professional">Professional</option>
-                    <option value="fix_grammar">Fix grammar</option>
-                    <option value="suggest_reply">Suggest reply</option>
-                  </Select>
+                <Input
+                  ref={messageInputRef}
+                  variant="filled"
+                  bg={colorMode === "dark" ? "gray.700" : "gray.50"}
+                  color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
+                  onChange={typingHandler}
+                  value={newMessage}
+                  placeholder="Type your message..."
+                  borderRadius="3xl"
+                  px={4}
+                  py={4}
+                  minH="52px"
+                  _placeholder={{
+                    color: colorMode === "dark" ? "gray.400" : "gray.400",
+                  }}
+                />
 
-                  <Button
-                    size="md"
-                    colorScheme="purple"
-                    isLoading={aiLoading}
-                    loadingText="AI"
-                    onClick={assistWithAI}
-                    borderRadius="2xl"
-                    px={6}
-                    py={3}
-                    boxShadow="md"
-                  >
-                    AI Assist
-                  </Button>
-                </Box>
+                <IconButton
+                  icon={<AttachmentIcon />}
+                  aria-label="Attach File"
+                  bg={colorMode === "dark" ? "gray.700" : "gray.100"}
+                  color={colorMode === "dark" ? "whiteAlpha.900" : "gray.600"}
+                  borderRadius="full"
+                  _hover={{
+                    bg: colorMode === "dark" ? "gray.600" : "gray.200",
+                  }}
+                  onClick={() => fileInputRef.current.click()}
+                  size="md"
+                />
 
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  gap={2}
-                  flex={1}
-                >
-                  <Input
-                    ref={messageInputRef}
-                    variant="filled"
-                    bg={colorMode === "dark" ? "gray.700" : "gray.50"}
-                    color={colorMode === "dark" ? "whiteAlpha.900" : "gray.800"}
-                    onChange={typingHandler}
-                    value={newMessage}
-                    placeholder="Type your message..."
-                    borderRadius="3xl"
-                    px={4}
-                    py={4}
-                    minH="52px"
-                    _placeholder={{
-                      color: colorMode === "dark" ? "gray.400" : "gray.400",
-                    }}
-                  />
-
-                  <IconButton
-                    icon={<AttachmentIcon />}
-                    aria-label="Attach File"
-                    bg={colorMode === "dark" ? "gray.700" : "gray.100"}
-                    color={colorMode === "dark" ? "whiteAlpha.900" : "gray.600"}
-                    borderRadius="full"
-                    _hover={{
-                      bg: colorMode === "dark" ? "gray.600" : "gray.200",
-                    }}
-                    onClick={() => fileInputRef.current.click()}
-                    size="md"
-                  />
-
-                  <IconButton
-                    icon={<ArrowForwardIcon />}
-                    aria-label="Send Message"
-                    colorScheme="green"
-                    borderRadius="full"
-                    isDisabled={!newMessage.trim()}
-                    onPointerDown={(event) => event.preventDefault()}
-                    onClick={submitMessage}
-                    size="md"
-                  />
-                </Box>
+                <IconButton
+                  icon={<ArrowForwardIcon />}
+                  aria-label="Send Message"
+                  colorScheme="green"
+                  borderRadius="full"
+                  isDisabled={!newMessage.trim()}
+                  onPointerDown={(event) => event.preventDefault()}
+                  onClick={submitMessage}
+                  size="md"
+                />
               </Box>
             </FormControl>
           </Box>
