@@ -45,8 +45,10 @@ const assistMessage = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Invalid AI assist mode" });
   }
 
-  if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({ message: "OPENAI_API_KEY is not configured" });
+  if (!process.env.OPENAI_API_KEY && !process.env.GEMINI_API_KEY) {
+    return res
+      .status(500)
+      .json({ message: "OPENAI_API_KEY or GEMINI_API_KEY is not configured" });
   }
 
   if (mode !== "suggest_reply" && !draft.trim()) {
